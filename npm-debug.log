@@ -1,22 +1,91 @@
 0 info it worked if it ends with ok
-1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'install' ]
+1 verbose cli [ '/usr/bin/node',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   'grunt-contrip-copy',
+1 verbose cli   '--save-dev' ]
 2 info using npm@1.4.28
 3 info using node@v0.10.32
 4 verbose node symlink /usr/bin/node
-5 error install Couldn't read dependencies
-6 error Failed to parse json
-6 error Unexpected token }
-7 error File: /home/amirul/projects/string2regex/package.json
-8 error Failed to parse package.json data.
-8 error package.json must be actual JSON, not just JavaScript.
-8 error
-8 error This is not a bug in npm.
-8 error Tell the package author to fix their package.json file. JSON.parse
-9 error System Linux 3.13.0-37-generic
-10 error command "/usr/bin/node" "/usr/bin/npm" "install"
-11 error cwd /home/amirul/projects/string2regex
-12 error node -v v0.10.32
-13 error npm -v 1.4.28
-14 error file /home/amirul/projects/string2regex/package.json
-15 error code EJSONPARSE
-16 verbose exit [ 1, true ]
+5 warn package.json string2regex@0.0.1 No repository field.
+6 warn package.json string2regex@0.0.1 No README data
+7 verbose readDependencies using package.json deps
+8 verbose cache add [ 'grunt-contrip-copy', null ]
+9 verbose cache add name=undefined spec="grunt-contrip-copy" args=["grunt-contrip-copy",null]
+10 verbose parsed url { protocol: null,
+10 verbose parsed url   slashes: null,
+10 verbose parsed url   auth: null,
+10 verbose parsed url   host: null,
+10 verbose parsed url   port: null,
+10 verbose parsed url   hostname: null,
+10 verbose parsed url   hash: null,
+10 verbose parsed url   search: null,
+10 verbose parsed url   query: null,
+10 verbose parsed url   pathname: 'grunt-contrip-copy',
+10 verbose parsed url   path: 'grunt-contrip-copy',
+10 verbose parsed url   href: 'grunt-contrip-copy' }
+11 silly lockFile 7eb8c92a-grunt-contrip-copy grunt-contrip-copy
+12 verbose lock grunt-contrip-copy /home/amirul/.npm/7eb8c92a-grunt-contrip-copy.lock
+13 silly lockFile 7eb8c92a-grunt-contrip-copy grunt-contrip-copy
+14 silly lockFile 7eb8c92a-grunt-contrip-copy grunt-contrip-copy
+15 verbose addNamed [ 'grunt-contrip-copy', '' ]
+16 verbose addNamed [ null, '*' ]
+17 silly lockFile 121532b5-grunt-contrip-copy grunt-contrip-copy@
+18 verbose lock grunt-contrip-copy@ /home/amirul/.npm/121532b5-grunt-contrip-copy.lock
+19 silly addNameRange { name: 'grunt-contrip-copy', range: '*', hasData: false }
+20 verbose request where is /grunt-contrip-copy
+21 verbose request registry https://registry.npmjs.org/
+22 verbose request id dbeae42360dd2347
+23 verbose url raw /grunt-contrip-copy
+24 verbose url resolving [ 'https://registry.npmjs.org/', './grunt-contrip-copy' ]
+25 verbose url resolved https://registry.npmjs.org/grunt-contrip-copy
+26 verbose request where is https://registry.npmjs.org/grunt-contrip-copy
+27 info trying registry request attempt 1 at 17:48:35
+28 http GET https://registry.npmjs.org/grunt-contrip-copy
+29 http 404 https://registry.npmjs.org/grunt-contrip-copy
+30 verbose headers { date: 'Sun, 19 Oct 2014 09:48:41 GMT',
+30 verbose headers   server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+30 verbose headers   'content-type': 'application/json',
+30 verbose headers   'cache-control': 'max-age=0',
+30 verbose headers   'content-length': '52',
+30 verbose headers   'accept-ranges': 'bytes',
+30 verbose headers   via: '1.1 varnish',
+30 verbose headers   age: '0',
+30 verbose headers   'x-served-by': 'cache-sn86-SIN',
+30 verbose headers   'x-cache': 'MISS',
+30 verbose headers   'x-cache-hits': '0',
+30 verbose headers   'x-timer': 'S1413712120.542248,VS0,VE883',
+30 verbose headers   'keep-alive': 'timeout=10, max=50',
+30 verbose headers   connection: 'Keep-Alive' }
+31 silly registry.get cb [ 404,
+31 silly registry.get   { date: 'Sun, 19 Oct 2014 09:48:41 GMT',
+31 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+31 silly registry.get     'content-type': 'application/json',
+31 silly registry.get     'cache-control': 'max-age=0',
+31 silly registry.get     'content-length': '52',
+31 silly registry.get     'accept-ranges': 'bytes',
+31 silly registry.get     via: '1.1 varnish',
+31 silly registry.get     age: '0',
+31 silly registry.get     'x-served-by': 'cache-sn86-SIN',
+31 silly registry.get     'x-cache': 'MISS',
+31 silly registry.get     'x-cache-hits': '0',
+31 silly registry.get     'x-timer': 'S1413712120.542248,VS0,VE883',
+31 silly registry.get     'keep-alive': 'timeout=10, max=50',
+31 silly registry.get     connection: 'Keep-Alive' } ]
+32 silly lockFile 121532b5-grunt-contrip-copy grunt-contrip-copy@
+33 silly lockFile 121532b5-grunt-contrip-copy grunt-contrip-copy@
+34 error 404 404 Not Found: grunt-contrip-copy
+34 error 404
+34 error 404 'grunt-contrip-copy' is not in the npm registry.
+34 error 404 You should bug the author to publish it
+34 error 404 It was specified as a dependency of 'string2regex'
+34 error 404
+34 error 404 Note that you can also install from a
+34 error 404 tarball, folder, or http url, or git url.
+35 error System Linux 3.13.0-37-generic
+36 error command "/usr/bin/node" "/usr/bin/npm" "install" "grunt-contrip-copy" "--save-dev"
+37 error cwd /home/amirul/projects/string2regex
+38 error node -v v0.10.32
+39 error npm -v 1.4.28
+40 error code E404
+41 verbose exit [ 1, true ]

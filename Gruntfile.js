@@ -17,7 +17,7 @@ module.exports = function(grunt) {
         stripBanners: true
       },
       dist: {
-        src: ['lib/<%= pkg.name %>.js'],
+        src: ['src/<%= pkg.name %>.js'],
         dest: 'dist/<%= pkg.name %>.js'
       }
     },
@@ -42,14 +42,6 @@ module.exports = function(grunt) {
         ]
       }
     },
-    bowercopy: {
-      demo: {
-        destPrefix: 'static',
-        files:{
-          "dist/**/*":""
-        }
-      }
-    },
     jshint: {
       options: {
         curly: true,
@@ -60,23 +52,21 @@ module.exports = function(grunt) {
         noarg: true,
         sub: true,
         undef: true,
-        unused: true,
+        unused: false,
         boss: true,
         eqnull: true,
         browser: true,
         globals: {
-          jQuery: true
+          jQuery: true,
+          angular: true
         }
       },
       gruntfile: {
         src: 'Gruntfile.js'
       },
       lib_test: {
-        src: ['lib/**/*.js', 'test/**/*.js']
+        src: ['src/**/*.js', 'test/**/*.js']
       }
-    },
-    qunit: {
-      files: ['test/**/*.html']
     },
     watch: {
       gruntfile: {
@@ -85,7 +75,7 @@ module.exports = function(grunt) {
       },
       lib_test: {
         files: '<%= jshint.lib_test.src %>',
-        tasks: ['jshint:lib_test', 'qunit']
+        tasks: ['jshint:lib_test', 'mocha','concat','uglify']
       }
     },
     mocha: {
@@ -93,6 +83,11 @@ module.exports = function(grunt) {
         src: ['tests/**/*.html'],
       },
     },
+    bower: {
+      install: {
+        install: true,
+      }
+    }
   });
 
   // These plugins provide necessary tasks.
@@ -100,10 +95,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-update-json');
+  grunt.loadNpmTasks('grunt-bower-task');
   grunt.loadNpmTasks('grunt-mocha');
 
   // Default task.
-  grunt.registerTask('default', ['update_json','jshint','concat', 'uglify', 'mocha']);
+  grunt.registerTask('default', ['bower','update_json','jshint','concat', 'uglify', 'mocha']);
 
 };

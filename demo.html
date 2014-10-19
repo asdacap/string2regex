@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>String2RegexDemo</title>
+  <script src="lib/angular/angular.js"></script>
+  <script src="lib/jquery/jquery.js"></script>
+  <script src="lib/bootstrap/bootstrap.js"></script>
+  <script src="static/js/demo.js"></script>
+  <script src="dist/string2regex.js"></script>
+  <link rel="stylesheet" href="lib/bootstrap/bootstrap.css" />
+</head>
+<body ng-app="string2regexdemo" ng-controller="MainController as main">
+  <script type="text/ng-template" id="string2regex-template.html">
+    <h1> Something is here </h1>
+  </script>
+  
+  <div class="container">
+    <h1>String2Regex Demo</h1>
+
+    Sample String: {{ main.holder.sample }}
+
+    <div string2regex="main.holder"></div>
+
+    Resulting regex: {{ main.holder.regex }}
+
+  </div>
+
+</body>
+</html>
