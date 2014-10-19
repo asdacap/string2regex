@@ -58,14 +58,16 @@ module.exports = function(grunt) {
         browser: true,
         globals: {
           jQuery: true,
-          angular: true
+          _: true,
+          angular: true,
+          console: true
         }
       },
       gruntfile: {
         src: 'Gruntfile.js'
       },
       lib_test: {
-        src: ['src/**/*.js', 'test/**/*.js']
+        src: ['src/**/*.js', 'tests/**/*.js']
       }
     },
     watch: {
@@ -75,12 +77,15 @@ module.exports = function(grunt) {
       },
       lib_test: {
         files: '<%= jshint.lib_test.src %>',
-        tasks: ['jshint:lib_test', 'mocha','concat','uglify']
+        tasks: ['jshint:lib_test','concat','uglify','mocha']
       }
     },
     mocha: {
       test: {
         src: ['tests/**/*.html'],
+        options: {
+          run: true
+        }
       },
     },
     bower: {
