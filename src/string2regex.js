@@ -1,6 +1,16 @@
 
 angular.module('string2regex',[])
-.controller('String2RegexCtrl',function($scope){
+.value('groupColors',[
+  "#F5A9A9",
+  "#F3E2A9",
+  "#D0F5A9",
+  "#A9F5BC",
+  "#A9F5F2",
+  "#A9BCF5",
+  "#D0A9F5",
+  "#F5A9E1"
+])
+.controller('String2RegexCtrl',function($scope,groupColors){
   var holder = $scope.holder;
 
   // Return an array of string corresponding to the character class.
@@ -29,6 +39,7 @@ angular.module('string2regex',[])
     if(!_.contains(result,'alphanumerical') && !_.contains(result,'space')){
       result.push('symbol');
     }
+    result.push('any');
     return result;
   }
 
@@ -43,7 +54,11 @@ angular.module('string2regex',[])
   }
 
   // generate child groups.
-  function generateChildGroups(string){
+  function generateChildGroups(string, depth){
+    if( depth === undefined ){
+      depth = 0;
+    }
+
     // if string length is 1 or less, no need to find child.
     if(string.length <= 1){
       return [];
@@ -60,7 +75,7 @@ angular.module('string2regex',[])
       var ccurClass = _.difference(getCharacterClass(string[i]),commonClass); //current character class excluding common class
       if(_.intersection(ccurClass,curClass).length === 0){ // they are not of the same set.
         substr = string.substring(curStart,i);
-        groups.push(generateGroups(substr));
+        groups.push(generateGroup(substr, depth));
         curClass = ccurClass;
         curStart = i;
       }else{
@@ -74,30 +89,81 @@ angular.module('string2regex',[])
       return [];
     }
     substr = string.substring(curStart,string.length); // last substr
-    groups.push(generateGroups(substr));
+    groups.push(generateGroup(substr, depth));
 
     return groups;
   }
 
-  function generateGroups(string){
+  function generateGroup(string, depth){
+    if( depth === undefined ){ //Depth is the depth from topmost parent.
+      depth = 0;
+    }
+
     var group={
       picked: false,
       string: string,
       getSize: function(){
         return this.string.length;
       },
-      commonClass: getCommonCharacterClass(string),
-      childs: generateChildGroups(string)
+      getGroupColor: function(){
+        return getColorForDepth(this.depth);
+      },
+      commonClass: getCommonCharacterClass(string, depth),
+      depth: depth,
+      selectedClass: '', // Which class should output in regular expression?
+      hasSelected: function(){
+        if(this.selectedClass !== ''){
+          return true;
+        }
+        var selectedChild = _.find(this.childs,function(child){ return child.hasSelected(); });
+        return selectedChild !== undefined;
+      },
+      ensureSelection: function(){ 
+        // If any child is selected, this cannot be selected. 
+        // If any child is selected, all child must be selected.
+        // If none of the child is selected, then this must be selected.
+
+        if(_.any(this.childs,function(child){
+          return child.hasSelected();
+        })){
+          this.selectedClass = '';
+          _.each(this.childs,function(child){
+            child.ensureSelection();
+          });
+        }else{
+          // no child selected
+          this.selectedClass = 'any';
+        }
+      },
+      ensureNoSelection: function(){
+        // This and all child should not be selected.
+        this.selectedClass = '';
+        _.each(this.childs,function(child){
+          child.ensureNoSelection();
+        });
+      },
+      select: function(characterClass){ 
+        // Select a characterClass from this group.
+        this.ensureNoSelection();
+        this.selectedClass = characterClass;
+      },
+      childs: generateChildGroups(string, depth+1)
     };
 
     return group;
   }
 
+  function getColorForDepth(depth){
+    return groupColors[depth%groupColors.length];
+  }
+
   $scope.getCharacterClass = getCharacterClass;
   $scope.getCommonCharacterClass = getCommonCharacterClass;
   $scope.generateChildGroups = generateChildGroups;
-  $scope.generateGroups = generateGroups;
-  $scope.groups = generateGroups(holder.sample);
+  $scope.generateGroup = generateGroup;
+  $scope.getColorForDepth = getColorForDepth;
+  $scope.group = generateGroup(holder.sample);
+  $scope.group.ensureSelection();
 })
 .directive('string2regex',function(){
 
@@ -110,4 +176,62 @@ angular.module('string2regex',[])
     },
     templateUrl: 'string2regex-template.html'
   };
-});
+})
+.directive('string2regexGroup',function(RecursionHelper){
+
+  return {
+    scope: {
+      group: '=string2regexGroup'
+    },
+    link: function(scope, element, attrs, controllers){
+    },
+    compile: function(element) {
+      // Use the compile function from the RecursionHelper,
+      // And return the linking function(s) which it returns
+      return RecursionHelper.compile(element);
+    },
+    templateUrl: 'string2regex-template-group.html'
+  };
+})
+//Copied from StackOverflow
+.factory('RecursionHelper', ['$compile', function($compile){
+    return {
+        /** 
+         * Manually compiles the element, fixing the recursion loop.
+         * @param element
+         * @param [link] A post-link function, or an object with function(s) registered via pre and post properties.
+         * @returns An object containing the linking functions.
+         */
+        compile: function(element, link){
+            // Normalize the link parameter
+            if(angular.isFunction(link)){
+                link = { post: link };
+            }
+
+            // Break the recursion loop by removing the contents
+            var contents = element.contents().remove();
+            var compiledContents;
+            return {
+                pre: (link && link.pre) ? link.pre : null,
+                /**
+                 * Compiles and re-adds the contents
+                 */
+                post: function(scope, element){
+                    // Compile the contents
+                    if(!compiledContents){
+                        compiledContents = $compile(contents);
+                    }
+                    // Re-add the compiled contents to the element
+                    compiledContents(scope, function(clone){
+                        element.append(clone);
+                    });
+
+                    // Call the post-linking function, if any
+                    if(link && link.post){
+                        link.post.apply(null, arguments);
+                    }
+                }
+            };
+        }
+    };
+}]);

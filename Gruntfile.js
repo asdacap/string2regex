@@ -67,7 +67,10 @@ module.exports = function(grunt) {
         src: 'Gruntfile.js'
       },
       lib_test: {
-        src: ['src/**/*.js', 'tests/**/*.js']
+        src: ['src/**/*.js', 'tests/**/*.js'],
+        options: {
+          expr: true
+        }
       }
     },
     watch: {
