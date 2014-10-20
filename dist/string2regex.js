@@ -43,7 +43,7 @@ angular.module('string2regex',[])
   },
   defaultClass: 'any'
 })
-.controller('String2RegexCtrl',function($scope,String2RegexConfiguration){
+.controller('String2RegexCtrl',['$scope','String2RegexConfiguration',function($scope,String2RegexConfiguration){
   var holder = $scope.holder;
   var groupColors = String2RegexConfiguration.groupColors;
   var getCharacterClass = String2RegexConfiguration.characterClassFunction;
@@ -170,7 +170,7 @@ angular.module('string2regex',[])
   $scope.getColorForDepth = getColorForDepth;
   $scope.group = generateGroup(holder.sample);
   $scope.group.ensureSelection();
-})
+} ])
 .directive('string2regex',function(){
 
   return {
@@ -183,7 +183,7 @@ angular.module('string2regex',[])
     templateUrl: 'string2regex-template.html'
   };
 })
-.directive('string2regexGroup',function(RecursionHelper){
+.directive('string2regexGroup',['RecursionHelper',function(RecursionHelper){
 
   return {
     scope: {
@@ -198,7 +198,7 @@ angular.module('string2regex',[])
     },
     templateUrl: 'string2regex-template-group.html'
   };
-})
+}])
 //Copied from StackOverflow
 .factory('RecursionHelper', ['$compile', function($compile){
     return {
