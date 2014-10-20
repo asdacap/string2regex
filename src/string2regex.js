@@ -1,20 +1,17 @@
 
 angular.module('string2regex',[])
-.value('groupColors',[
-  "#F5A9A9",
-  "#F3E2A9",
-  "#D0F5A9",
-  "#A9F5BC",
-  "#A9F5F2",
-  "#A9BCF5",
-  "#D0A9F5",
-  "#F5A9E1"
-])
-.controller('String2RegexCtrl',function($scope,groupColors){
-  var holder = $scope.holder;
-
-  // Return an array of string corresponding to the character class.
-  function getCharacterClass(char){ 
+.value('String2RegexConfiguration',{
+  groupColors:[
+    "#F5A9A9",
+    "#F3E2A9",
+    "#D0F5A9",
+    "#A9F5BC",
+    "#A9F5F2",
+    "#A9BCF5",
+    "#D0A9F5",
+    "#F5A9E1"
+  ],
+  characterClassFunction: function(char){ // Return an array of string corresponding to the character class.
     var result = [];
     if(char >= '0' && char <= '9'){
       result.push('number');
@@ -41,7 +38,14 @@ angular.module('string2regex',[])
     }
     result.push('any');
     return result;
-  }
+  },
+  defaultClass: 'any'
+})
+.controller('String2RegexCtrl',function($scope,String2RegexConfiguration){
+  var holder = $scope.holder;
+  var groupColors = String2RegexConfiguration.groupColors;
+  var getCharacterClass = String2RegexConfiguration.characterClassFunction;
+  var defaultClass = String2RegexConfiguration.defaultClass;
 
   // common class is character class which every character in the string have.
   function getCommonCharacterClass(string){
@@ -132,7 +136,7 @@ angular.module('string2regex',[])
           });
         }else{
           // no child selected
-          this.selectedClass = 'any';
+          this.selectedClass = defaultClass;
         }
       },
       ensureNoSelection: function(){

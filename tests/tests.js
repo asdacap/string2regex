@@ -1,5 +1,28 @@
 /* global module,inject,it,describe,beforeEach,expect */
 
+describe("String2RegexConfiguration",function(){
+  var configuration;
+  beforeEach(module('string2regex'));
+  beforeEach(inject(function(String2RegexConfiguration){
+    configuration = String2RegexConfiguration;
+  }));
+
+  describe("characterClassFunction",function(){
+    it("should check for number correctly",function(){
+      expect(configuration.characterClassFunction('0')).to.eql(["number","alphanumerical","nonspace","any"]);
+    });
+    it("should check for letter correctly",function(){
+      expect(configuration.characterClassFunction('a')).to.eql(["lowercase","alphabet","alphanumerical","nonspace","any"]);
+    });
+    it("should check for symbol correctly",function(){
+      expect(configuration.characterClassFunction('!')).to.eql(["nonspace","symbol","any"]);
+    });
+    it("should check for space correctly",function(){
+      expect(configuration.characterClassFunction(' ')).to.eql(["space","any"]);
+    });
+  });
+});
+
 describe("String2RegexCtrl",function(){
 
   var controller;
@@ -7,10 +30,14 @@ describe("String2RegexCtrl",function(){
 
   beforeEach(module('string2regex'));
   beforeEach(module(function($provide){
-    $provide.value('groupColors',[
-      "firstcolor",
-      "secondcolor"
-    ]);
+    $provide.decorator('String2RegexConfiguration',function($delegate){
+      console.log($delegate);
+      $delegate.groupColors = [
+        "firstcolor",
+        "secondcolor"
+      ];
+      return $delegate;
+    });
   }));
   beforeEach(inject(function($controller,$rootScope){
     scope = $rootScope.$new();
@@ -19,21 +46,6 @@ describe("String2RegexCtrl",function(){
     };
     controller = $controller('String2RegexCtrl', { $scope: scope } );
   }));
-
-  describe("getCharacterClass",function(){
-    it("should check for number correctly",function(){
-      expect(scope.getCharacterClass('0')).to.eql(["number","alphanumerical","nonspace","any"]);
-    });
-    it("should check for letter correctly",function(){
-      expect(scope.getCharacterClass('a')).to.eql(["lowercase","alphabet","alphanumerical","nonspace","any"]);
-    });
-    it("should check for symbol correctly",function(){
-      expect(scope.getCharacterClass('!')).to.eql(["nonspace","symbol","any"]);
-    });
-    it("should check for space correctly",function(){
-      expect(scope.getCharacterClass(' ')).to.eql(["space","any"]);
-    });
-  });
 
   describe("getCommonCharacterClass",function(){
     it("should check for common class correctly",function(){
