@@ -140,6 +140,25 @@ describe("String2RegexCtrl",function(){
         expect(group.selectedClass).to.eql('');
         expect(_.every(group.childs,function(child){ return child.hasSelected(); })).to.be.true;
       });
+      it("should fill the rest of the child with parent class",function(){
+        group.ensureNoSelection();
+        expect(group.selectedClass).to.eql('');
+        group.childs[0].ensureSelection();
+        group.selectedClass = 'somethingnew';
+        expect(group.selectedClass).to.eql('somethingnew');
+        group.ensureSelection();
+        expect(group.selectedClass).to.eql('');
+        expect(group.childs[1].selectedClass).to.eql('somethingnew');
+      });
+      it("should fill the rest of the child with parent's parent class when parent class is not available.",function(){
+        group.ensureNoSelection();
+        group.childs[0].childs[0].ensureSelection();
+        group.selectedClass = 'somethingnew';
+        expect(group.selectedClass).to.eql('somethingnew');
+        group.ensureSelection();
+        expect(group.selectedClass).to.eql('');
+        expect(group.childs[0].childs[1].selectedClass).to.eql('somethingnew');
+      });
     });
     describe('ensureNoSelection',function(){
       it("should clear selected class and all child selection",function(){

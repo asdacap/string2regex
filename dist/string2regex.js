@@ -202,22 +202,33 @@ angular.module('string2regex',[])
         var selectedChild = _.find(this.childs,function(child){ return child.hasSelected(); });
         return selectedChild !== undefined;
       },
-      ensureSelection: function(){ 
+      ensureSelection: function(changeTo){ 
         // If any child is selected, this cannot be selected. 
         // If any child is selected, all child must be selected.
         // If none of the child is selected, then this must be selected.
+        // Also, changeTo is the default class to change to.
+        // Used to hint what class to put when the parent need to fill unselected child
+        // with the parent's class.
+        
+        if(changeTo === undefined || changeTo === ''){
+          changeTo = defaultClass;
+        }
 
         if(_.any(this.childs,function(child){
           return child.hasSelected();
         })){
-          this.selectedClass = '';
+          var selected = this.selectedClass;
+          if(selected === ''){
+            selected = changeTo;
+          }
           _.each(this.childs,function(child){
-            child.ensureSelection();
+            child.ensureSelection(selected);
           });
+          this.selectedClass = '';
         }else{
           // no child selected
           if(this.selectedClass === ''){
-            this.selectedClass = defaultClass;
+            this.selectedClass = changeTo;
           }
         }
       },
