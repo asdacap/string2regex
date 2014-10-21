@@ -95,23 +95,20 @@ angular.module('string2regex',[])
     result.push('any');
     return result;
   },
-  generateRegex: function(charClass,group){ // Generate part of regular expression based on class.
-    if( charClass === 'number' ){
-      return '[0-9]';
-    }else if( charClass === 'lowercase' ){
-      return '[a-z]';
-    }else if( charClass === 'uppercase' ){
-      return '[A-Z]';
-    }else if( charClass === 'alphabet' ){
-      return '[a-zA-Z]';
-    }else if( charClass === 'alphanumerical' ){
-      return '[a-zA-Z0-9]';
-    }else if( charClass === 'space' ){
-      return '\\s';
-    }else if( charClass === 'nonspace' ){
-      return '\\S';
-    }else if( charClass === 'symbol' ){
-      return '[^a-zA-Z0-9]';
+  generateRegexPortion: function(charClass,group){ // Generate part of regular expression based on class.
+    var mapping = {
+      number: '[0-9]',
+      lowercase: '[a-z]',
+      uppercase: '[A-Z]',
+      alphabet: '[a-zA-Z]',
+      alphanumerical: '[a-zA-Z0-9]',
+      space: '\\s',
+      nonspace: '\\S',
+      symbol: '[^a-zA-Z0-9]',
+      any: '.'
+    };
+    if(mapping[charClass] !== undefined){
+      return mapping[charClass];
     }else if( charClass === 'constant' ){
       return (group.string+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1"); // quite it from being a regular expression.
     }else if( charClass === 'any' ){
@@ -126,7 +123,7 @@ angular.module('string2regex',[])
   var groupColors = String2RegexConfiguration.groupColors;
   var getCharacterClass = _.memoize(String2RegexConfiguration.characterClassFunction);
   var defaultClass = String2RegexConfiguration.defaultClass;
-  var generateRegex = String2RegexConfiguration.generateRegex;
+  var generateRegexPortion = String2RegexConfiguration.generateRegexPortion;
 
   $scope.classInfo = String2RegexConfiguration.classInfo;
 
@@ -238,15 +235,55 @@ angular.module('string2regex',[])
         $scope.rootGroup.ensureSelection();
         regenerateResult();
       },
-      generateRegex: function(){
-        // Return a regex string.
-        var res = '';
+      generateRegexPartitions: function(){
+        // Basically get array of groups with resulting regular expression portion.
+        // Used for processing when regex is same between neighbour group.
+        var res = [];
         if(this.selectedClass === ''){
           _.each(this.childs,function(child){
-            res += child.generateRegex();
+            res = res.concat(child.generateRegexPartitions());
           });
         }else{
-          res += generateRegex(this.selectedClass, this);
+          res.push({
+            regex: generateRegexPortion(this.selectedClass, this), //Obtained from configuration
+            group: this
+          });
+        }
+        return res;
+      },
+      generateRegex: function(){
+        // Return a regex string.
+        
+        var res = '';
+        var partitions = this.generateRegexPartitions();
+        if(partitions.length === 0){
+          return res;
+        }
+        // Group by same regex
+        var groupedPartition = [];
+        var cur = {
+          regex:partitions[0].regex,
+          list:[partitions[0]]
+        };
+        var i;
+        for(i=1;i<partitions.length;i++){
+          var cpart = partitions[i];
+          if(cpart.regex === cur.regex){
+            cur.list.push(cpart);
+          }else{
+            groupedPartition.push(cur);
+            cur = {
+              regex:partitions[i].regex,
+              list:[partitions[i]]
+            };
+          }
+        }
+        groupedPartition.push(cur);
+
+        // For now we assume all multiplied is +
+        // So we could just append them.
+        for(i=0;i<groupedPartition.length;i++){
+          res+=groupedPartition[i].regex+'+';
         }
 
         return res;

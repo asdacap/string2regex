@@ -21,6 +21,30 @@ describe("String2RegexConfiguration",function(){
       expect(configuration.characterClassFunction(' ')).to.eql(["space","constant","any"]);
     });
   });
+
+  describe("generateRegexPortion",function(){
+    _.each({
+      number: '[0-9]',
+      lowercase: '[a-z]',
+      uppercase: '[A-Z]',
+      alphabet: '[a-zA-Z]',
+      alphanumerical: '[a-zA-Z0-9]',
+      space: '\\s',
+      nonspace: '\\S',
+      symbol: '[^a-zA-Z0-9]',
+      any: '.'
+    },function(value,key){
+      it("should return correct regex for class "+key,function(){
+        expect(configuration.generateRegexPortion(key)).to.eql(value);
+      });
+    });
+
+    it("should properly escape it for constant class",function(){
+      expect(configuration.generateRegexPortion('constant',{
+        string: '\\[]'
+      })).to.eql('\\\\\\[\\]');
+    });
+  });
 });
 
 describe("String2RegexCtrl",function(){
@@ -156,6 +180,21 @@ describe("String2RegexCtrl",function(){
         var newgroup = scope.generateGroup(group.string);
         newgroup.preserveSettingFromOldGroup(group);
         expect(newgroup.childs[0].selectedClass).to.eql('any');
+      });
+    });
+    describe('generateRegex',function(){
+      beforeEach(function(){
+        group = scope.generateGroup("Abc!");
+      });
+      it("should generate regex properly for class constant",function(){
+        group.ensureNoSelection();
+        group.selectedClass = 'constant';
+        expect(group.generateRegex()).to.eql('Abc!+');
+      });
+      it("should generate regex properly for class any",function(){
+        group.ensureNoSelection();
+        group.selectedClass = 'any';
+        expect(group.generateRegex()).to.eql('.+');
       });
     });
   });
