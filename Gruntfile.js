@@ -79,7 +79,11 @@ module.exports = function(grunt) {
       },
       lib_test: {
         files: '<%= jshint.lib_test.src %>',
-        tasks: ['jshint:lib_test','concat','uglify','mocha']
+        tasks: ['jshint:lib_test','concat','less','uglify','mocha']
+      },
+      less: {
+        files: 'src/*.less',
+        tasks: ['less']
       }
     },
     mocha: {
@@ -94,6 +98,13 @@ module.exports = function(grunt) {
       install: {
         install: true,
       }
+    },
+    less: {
+      string2regex: {
+        files:{
+          "dist/string2regex.css": "src/string2regex.less"
+        }
+      }
     }
   });
 
@@ -103,11 +114,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-update-json');
   grunt.loadNpmTasks('grunt-bower-task');
   grunt.loadNpmTasks('grunt-mocha');
 
   // Default task.
-  grunt.registerTask('default', ['bower','update_json','jshint','concat', 'uglify', 'mocha']);
+  grunt.registerTask('default', ['bower','update_json','jshint','concat', 'less', 'uglify', 'mocha']);
 
 };

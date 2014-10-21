@@ -10,49 +10,16 @@
   <script src="static/js/demo.js"></script>
   <script src="dist/string2regex.js"></script>
   <link rel="stylesheet" href="lib/bootstrap/bootstrap.css" />
-  <style>
-    .group-table{
-      padding: 1px;
-      border: 1px solid grey;
-      font-family: monospace;
-    }
-    .group-table > tbody > tr > td{
-      vertical-align: top;
-      text-align: center;
-    }
-    .string2regex-table{
-      width:100%;
-      overflow-x: auto;
-    }
-    .string2regex-table .char-block{
-      height:2em;
-      width:1.5em;
-      text-align:center;
-      display:inline-block;
-      margin-top: 1px;
-      border:1px solid black;
-      background-color:white;
-    }
-    .string2regex-table .char-block > span{
-      vertical-align:middle;
-    }
-    .string2regex-table .char-block > span:before{
-      vertical-align:middle;
-      content: '';
-      display:inline-block;
-      height:100%;
-    }
-    .string2regex-table .class-icon.selected{
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="dist/string2regex.css" />
 </head>
 <body ng-app="string2regexdemo" ng-controller="MainController as main">
   <script type="text/ng-template" id="string2regex-template.html">
-    <h1> Something is here </h1>
+    <div class="string2regex">
+      <h1> Something is here </h1>
 
-    <div class="string2regex-table">
-      <div string2regex-group="rootGroup" />
+      <div class="string2regex-table">
+        <div string2regex-group="rootGroup" />
+      </div>
     </div>
   </script>
   <script type="text/ng-template" id="string2regex-template-group.html">
@@ -70,34 +37,8 @@
         </tr>
         <tr>
           <td colspan="{{ group.string.length }}">
-            <div ng-repeat="class in group.commonClass" ng-class=" class == group.selectedClass ? ['class-icon','selected'] : ['class-icon'] " ng-click="group.select(class)">
-              <div ng-if="class == 'number'">
-                Num
-              </div>
-              <div ng-if="class == 'lowercase'">
-                Low
-              </div>
-              <div ng-if="class == 'uppercase'">
-                Up
-              </div>
-              <div ng-if="class == 'alphabet'">
-                Alpha
-              </div>
-              <div ng-if="class == 'alphanumerical'">
-                AlpaNum
-              </div>
-              <div ng-if="class == 'space'">
-                Spac
-              </div>
-              <div ng-if="class == 'nonspace'">
-                NonSpac
-              </div>
-              <div ng-if="class == 'symbol'">
-                Sym
-              </div>
-              <div ng-if="class == 'any'">
-                Any
-              </div>
+            <div ng-repeat="class in group.commonClass" ng-if="classInfo[class].display_button || class == group.selectedClass" ng-class=" class == group.selectedClass ? ['class-icon','selected','btn','btn-xs','btn-primary'] : ['class-icon','btn','btn-xs','btn-default'] " ng-click="group.select(class)" title="{{classInfo[class].button_tooltip}}">
+              {{ classInfo[class].button_text }}
             </div>
           </td>
         </tr>

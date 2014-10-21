@@ -13,6 +13,59 @@ angular.module('string2regex',[])
     "#D0A9F5",
     "#F5A9E1"
   ],
+  classInfo: {
+    number: {
+      display_button: true,
+      button_text: 'Num',
+      button_tooltip: 'Number'
+    },
+    uppercase: {
+      display_button: true,
+      button_text: 'Up',
+      button_tooltip: 'Uppercase'
+    },
+    lowercase: {
+      display_button: true,
+      button_text: 'Low',
+      button_tooltip: 'Lowercase'
+    },
+    alphabet: {
+      display_button: true,
+      button_text: 'Alpha',
+      button_tooltip: 'Alphabet'
+    },
+    alphanumerical: {
+      display_button: true,
+      button_text: 'AlNum',
+      button_tooltip: 'Alphanumerical'
+    },
+    space: {
+      display_button: true,
+      button_text: 'Spac',
+      button_tooltip: 'Space'
+    },
+    nonspace: {
+      display_button: true,
+      button_text: 'NSpac',
+      button_tooltip: 'NonSpace'
+    },
+    symbol: {
+      display_button: true,
+      button_text: 'Sym',
+      button_tooltip: 'Symbol'
+    },
+    constant: {
+      display_button: true,
+      button_text: 'Con',
+      button_tooltip: 'Constant'
+    },
+    any: {
+      display_button: true,
+      button_text: 'Any',
+      button_tooltip: 'Any'
+    }
+  },
+
   characterClassFunction: function(char){ // Return an array of string corresponding to the character class.
     var result = [];
     if(char >= '0' && char <= '9'){
@@ -38,28 +91,31 @@ angular.module('string2regex',[])
     if(!_.contains(result,'alphanumerical') && !_.contains(result,'space')){
       result.push('symbol');
     }
+    result.push('constant');
     result.push('any');
     return result;
   },
   generateRegex: function(charClass,group){ // Generate part of regular expression based on class.
     if( charClass === 'number' ){
-      return '[0-9]+';
+      return '[0-9]';
     }else if( charClass === 'lowercase' ){
-      return '[a-z]+';
+      return '[a-z]';
     }else if( charClass === 'uppercase' ){
-      return '[A-Z]+';
+      return '[A-Z]';
     }else if( charClass === 'alphabet' ){
-      return '[a-zA-Z]+';
+      return '[a-zA-Z]';
     }else if( charClass === 'alphanumerical' ){
-      return '[a-zA-Z0-9]+';
+      return '[a-zA-Z0-9]';
     }else if( charClass === 'space' ){
-      return '\\s+';
+      return '\\s';
     }else if( charClass === 'nonspace' ){
-      return '\\S+';
+      return '\\S';
     }else if( charClass === 'symbol' ){
-      return '[^a-zA-Z0-9]+';
+      return '[^a-zA-Z0-9]';
+    }else if( charClass === 'constant' ){
+      return (group.string+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1"); // quite it from being a regular expression.
     }else if( charClass === 'any' ){
-      return '.+';
+      return '.';
     }
     return 'ERROR unknown charClass '+charClass;
   },
@@ -68,9 +124,11 @@ angular.module('string2regex',[])
 .controller('String2RegexCtrl',['$scope','String2RegexConfiguration',function($scope,String2RegexConfiguration){
   var holder = $scope.holder;
   var groupColors = String2RegexConfiguration.groupColors;
-  var getCharacterClass = String2RegexConfiguration.characterClassFunction;
+  var getCharacterClass = _.memoize(String2RegexConfiguration.characterClassFunction);
   var defaultClass = String2RegexConfiguration.defaultClass;
   var generateRegex = String2RegexConfiguration.generateRegex;
+
+  $scope.classInfo = String2RegexConfiguration.classInfo;
 
   // common class is character class which every character in the string have.
   function getCommonCharacterClass(string){
@@ -339,6 +397,9 @@ angular.module('string2regex',[])
   return {
     scope: {
       group: '=string2regexGroup'
+    },
+    controller: function($scope,String2RegexConfiguration){
+      $scope.classInfo = String2RegexConfiguration.classInfo;
     },
     link: function(scope, element, attrs, controllers){
     },

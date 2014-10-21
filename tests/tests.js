@@ -9,16 +9,16 @@ describe("String2RegexConfiguration",function(){
 
   describe("characterClassFunction",function(){
     it("should check for number correctly",function(){
-      expect(configuration.characterClassFunction('0')).to.eql(["number","alphanumerical","nonspace","any"]);
+      expect(configuration.characterClassFunction('0')).to.eql(["number","alphanumerical","nonspace","constant","any"]);
     });
     it("should check for letter correctly",function(){
-      expect(configuration.characterClassFunction('a')).to.eql(["lowercase","alphabet","alphanumerical","nonspace","any"]);
+      expect(configuration.characterClassFunction('a')).to.eql(["lowercase","alphabet","alphanumerical","nonspace","constant","any"]);
     });
     it("should check for symbol correctly",function(){
-      expect(configuration.characterClassFunction('!')).to.eql(["nonspace","symbol","any"]);
+      expect(configuration.characterClassFunction('!')).to.eql(["nonspace","symbol","constant","any"]);
     });
     it("should check for space correctly",function(){
-      expect(configuration.characterClassFunction(' ')).to.eql(["space","any"]);
+      expect(configuration.characterClassFunction(' ')).to.eql(["space","constant","any"]);
     });
   });
 });
@@ -48,8 +48,8 @@ describe("String2RegexCtrl",function(){
 
   describe("getCommonCharacterClass",function(){
     it("should check for common class correctly",function(){
-      expect(scope.getCommonCharacterClass("abc123")).to.eql(["alphanumerical","nonspace","any"]);
-      expect(scope.getCommonCharacterClass("abc1 23")).to.eql(["any"]);
+      expect(scope.getCommonCharacterClass("abc123")).to.eql(["alphanumerical","nonspace","constant","any"]);
+      expect(scope.getCommonCharacterClass("abc1 23")).to.eql(["constant","any"]);
     });
   });
 
