@@ -144,6 +144,20 @@ describe("String2RegexCtrl",function(){
         expect(scope.rootGroup.ensureSelection).to.have.been.called;
       });
     });
+    describe('preserveSettingFromOldGroup',function(){
+      it("should preserve selectedClass",function(){
+        group.selectedClass = 'any';
+        var newgroup = scope.generateGroup(group.string);
+        newgroup.preserveSettingFromOldGroup(group);
+        expect(newgroup.selectedClass).to.eql('any');
+      });
+      it("should preserve child's selectedClass",function(){
+        group.childs[0].selectedClass = 'any';
+        var newgroup = scope.generateGroup(group.string);
+        newgroup.preserveSettingFromOldGroup(group);
+        expect(newgroup.childs[0].selectedClass).to.eql('any');
+      });
+    });
   });
 
   describe("getColorForDepth",function(){
@@ -152,6 +166,15 @@ describe("String2RegexCtrl",function(){
     });
     it("should give rotated color when not enough color",function(){
       expect(scope.getColorForDepth(3)).to.eql('secondcolor');
+    });
+  });
+
+  describe("findLCS",function(){
+    it("should give the value correctly",function(){
+      var a1 = 'adbec';
+      var a2 = 'abzc';
+      expect(scope.findLCS(a1,a2,function(a,b){ return a === b; })).to.eql(['a','b','c']);
+      expect(scope.findLCS(a2,a1,function(a,b){ return a === b; })).to.eql(['a','b','c']);
     });
   });
 

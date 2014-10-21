@@ -191,6 +191,29 @@ angular.module('string2regex',[])
 
         return res;
       }, 
+      preserveSettingFromOldGroup: function(group){
+        // attempt to regain setting from old group.
+        this.selectedClass = group.selectedClass;
+
+        // The rest if to see if any child from group is of equal commonClass
+        // If so, call preserveSetting from them.
+        function childEqual(g1,g2){
+          // consider equal if same common class.
+          return _.intersection(g1.commonClass,g2.commonClass).length == g1.commonClass.length; 
+        }
+        var commonChilds = findLCS(group.childs,this.childs,childEqual);
+
+        var ccindex = 0;
+        for(var i=0;i<this.childs.length;i++){
+          if(ccindex >= commonChilds.length){
+            break;
+          }
+          if(childEqual(this.childs[i],commonChilds[ccindex])){
+            this.childs[i].preserveSettingFromOldGroup(commonChilds[ccindex]);
+            ccindex++;
+          }
+        }
+      },
       childs: generateChildGroups(string, depth+1)
     };
 
@@ -205,8 +228,82 @@ angular.module('string2regex',[])
     $scope.holder.regex = $scope.rootGroup.generateRegex();
   }
 
+  // A generic longest common subsequence
+  // list1 and list2 is self explanatory.
+  // is_equal is a function that determine if item is equal.
+  function findLCS(list1,list2,is_equal){
+    var max = [];
+    var ops = [];
+    var rows = [];
+    var i;
+    var i2;
+    for(i=0;i<list2.length;i++){
+      rows.push(0);
+    }
+    for(i=0;i<list1.length;i++){
+      max.push(angular.copy(rows));
+      ops.push(angular.copy(rows));
+    }
+
+    for(i=0;i<list1.length;i++){
+      for(i2=0;i2<list2.length;i2++){
+        if(i===0 || i2===0){
+          if( is_equal(list1[i], list2[i2]) ){
+            max[i][i2] = 1;
+            ops[i][i2] = 1;
+          }else if(i===0){
+            ops[i][i2] = 3;
+          }else if(i2===0){
+            ops[i][i2] = 2;
+          }
+        }else{
+          if( is_equal(list1[i], list2[i2]) ){
+            max[i][i2] = max[i-1][i2-1]+1;
+            ops[i][i2] = 1;
+          }else{
+            if(max[i-1][i2] > max[i][i2]){
+              max[i][i2] = max[i-1][i2];
+              ops[i][i2] = 2;
+            }
+            if(max[i][i2-1] > max[i][i2]){
+              max[i][i2] = max[i][i2-1];
+              ops[i][i2] = 3;
+            }
+          }
+        }
+      }
+    }
+
+    var result = [];
+
+    i=list1.length-1;
+    i2=list2.length-1;
+    while(i != -1 && i2 != -1){
+      var op = ops[i][i2];
+      if(op == 1){
+        result.push(list1[i]);
+        i--;
+        i2--;
+      }
+      if(op == 2){
+        i--;
+      }
+      if(op == 3){
+        i2--;
+      }
+      if(op === 0){
+        break;
+      }
+    }
+
+    result.reverse();
+    return result;
+  }
+
   $scope.$watch('holder.sample',function(){
+    var oldRoot = $scope.rootGroup;
     $scope.rootGroup = generateGroup(holder.sample);
+    $scope.rootGroup.preserveSettingFromOldGroup(oldRoot);
     $scope.rootGroup.ensureSelection();
     regenerateResult();
   });
@@ -216,6 +313,7 @@ angular.module('string2regex',[])
   regenerateResult();
 
   $scope.getCharacterClass = getCharacterClass;
+  $scope.findLCS = findLCS;
   $scope.getCommonCharacterClass = getCommonCharacterClass;
   $scope.generateChildGroups = generateChildGroups;
   $scope.generateGroup = generateGroup;
