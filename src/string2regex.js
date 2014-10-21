@@ -39,6 +39,28 @@ angular.module('string2regex',[])
     result.push('any');
     return result;
   },
+  generateRegex: function(charClass,group){ // Generate part of regular expression based on class.
+    if( charClass === 'number' ){
+      return '[0-9]+';
+    }else if( charClass === 'lowercase' ){
+      return '[a-z]+';
+    }else if( charClass === 'uppercase' ){
+      return '[A-Z]+';
+    }else if( charClass === 'alphabet' ){
+      return '[a-zA-Z]+';
+    }else if( charClass === 'alphanumerical' ){
+      return '[a-zA-Z0-9]+';
+    }else if( charClass === 'space' ){
+      return '\\s+';
+    }else if( charClass === 'nonspace' ){
+      return '\\S+';
+    }else if( charClass === 'symbol' ){
+      return '[^a-zA-Z0-9]+';
+    }else if( charClass === 'any' ){
+      return '.+';
+    }
+    return 'ERROR unknown charClass '+charClass;
+  },
   defaultClass: 'any'
 })
 .controller('String2RegexCtrl',['$scope','String2RegexConfiguration',function($scope,String2RegexConfiguration){
@@ -46,6 +68,7 @@ angular.module('string2regex',[])
   var groupColors = String2RegexConfiguration.groupColors;
   var getCharacterClass = String2RegexConfiguration.characterClassFunction;
   var defaultClass = String2RegexConfiguration.defaultClass;
+  var generateRegex = String2RegexConfiguration.generateRegex;
 
   // common class is character class which every character in the string have.
   function getCommonCharacterClass(string){
@@ -136,7 +159,9 @@ angular.module('string2regex',[])
           });
         }else{
           // no child selected
-          this.selectedClass = defaultClass;
+          if(this.selectedClass === ''){
+            this.selectedClass = defaultClass;
+          }
         }
       },
       ensureNoSelection: function(){
@@ -150,7 +175,22 @@ angular.module('string2regex',[])
         // Select a characterClass from this group.
         this.ensureNoSelection();
         this.selectedClass = characterClass;
+        $scope.rootGroup.ensureSelection();
+        regenerateResult();
       },
+      generateRegex: function(){
+        // Return a regex string.
+        var res = '';
+        if(this.selectedClass === ''){
+          _.each(this.childs,function(child){
+            res += child.generateRegex();
+          });
+        }else{
+          res += generateRegex(this.selectedClass, this);
+        }
+
+        return res;
+      }, 
       childs: generateChildGroups(string, depth+1)
     };
 
@@ -161,13 +201,26 @@ angular.module('string2regex',[])
     return groupColors[depth%groupColors.length];
   }
 
+  function regenerateResult(){
+    $scope.holder.regex = $scope.rootGroup.generateRegex();
+  }
+
+  $scope.$watch('holder.sample',function(){
+    $scope.rootGroup = generateGroup(holder.sample);
+    $scope.rootGroup.ensureSelection();
+    regenerateResult();
+  });
+
+  $scope.rootGroup = generateGroup(holder.sample);
+  $scope.rootGroup.ensureSelection();
+  regenerateResult();
+
   $scope.getCharacterClass = getCharacterClass;
   $scope.getCommonCharacterClass = getCommonCharacterClass;
   $scope.generateChildGroups = generateChildGroups;
   $scope.generateGroup = generateGroup;
+  $scope.regenerateResult = regenerateResult;
   $scope.getColorForDepth = getColorForDepth;
-  $scope.group = generateGroup(holder.sample);
-  $scope.group.ensureSelection();
 } ])
 .directive('string2regex',function(){
 

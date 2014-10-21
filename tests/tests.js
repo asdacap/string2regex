@@ -1,4 +1,4 @@
-/* global module,inject,it,describe,beforeEach,expect */
+/* global module,inject,it,describe,beforeEach,expect,sinon */
 
 describe("String2RegexConfiguration",function(){
   var configuration;
@@ -31,7 +31,6 @@ describe("String2RegexCtrl",function(){
   beforeEach(module('string2regex'));
   beforeEach(module(function($provide){
     $provide.decorator('String2RegexConfiguration',function($delegate){
-      console.log($delegate);
       $delegate.groupColors = [
         "firstcolor",
         "secondcolor"
@@ -138,6 +137,11 @@ describe("String2RegexCtrl",function(){
         group.select('any');
         expect(group.selectedClass).to.eql('any');
         expect(_.all(group.childs,function(child){ return !child.hasSelected(); })).to.be.true;
+      });
+      it("should call rootGroup ensureSelection",function(){
+        sinon.spy(scope.rootGroup,'ensureSelection');
+        group.select('any');
+        expect(scope.rootGroup.ensureSelection).to.have.been.called;
       });
     });
   });

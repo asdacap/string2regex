@@ -13,6 +13,7 @@
   <style>
     .group-table{
       padding: 1px;
+      border: 1px solid grey;
       font-family: monospace;
     }
     .group-table > tbody > tr > td{
@@ -41,6 +42,9 @@
       display:inline-block;
       height:100%;
     }
+    .string2regex-table .class-icon.selected{
+      font-weight: bold;
+    }
   </style>
 </head>
 <body ng-app="string2regexdemo" ng-controller="MainController as main">
@@ -48,7 +52,7 @@
     <h1> Something is here </h1>
 
     <div class="string2regex-table">
-      <div string2regex-group="group" />
+      <div string2regex-group="rootGroup" />
     </div>
   </script>
   <script type="text/ng-template" id="string2regex-template-group.html">
@@ -66,7 +70,7 @@
         </tr>
         <tr>
           <td colspan="{{ group.string.length }}">
-            <div class="class-icon" ng-repeat="class in group.commonClass">
+            <div ng-repeat="class in group.commonClass" ng-class=" class == group.selectedClass ? ['class-icon','selected'] : ['class-icon'] " ng-click="group.select(class)">
               <div ng-if="class == 'number'">
                 Num
               </div>
@@ -91,6 +95,9 @@
               <div ng-if="class == 'symbol'">
                 Sym
               </div>
+              <div ng-if="class == 'any'">
+                Any
+              </div>
             </div>
           </td>
         </tr>
@@ -101,7 +108,8 @@
   <div class="container">
     <h1>String2Regex Demo</h1>
 
-    Sample String: {{ main.holder.sample }}
+    Sample String:
+    <input type="text" ng-model="main.holder.sample" />
 
     <div string2regex="main.holder"></div>
 

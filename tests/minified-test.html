@@ -12,8 +12,10 @@
   <script src="../lib/mocha/mocha.js"></script>
   <script>mocha.setup('bdd')</script>
   <script src="../lib/chai/chai.js"></script>
+  <script src="../lib/sinonjs/sinon.js"></script>
+  <script src="../lib/sinon-chai/lib/sinon-chai.js"></script>
   <script src="../lib/angular/angular.js"></script>
-  <script src="../dist/string2regex.js"></script>
+  <script src="../dist/string2regex.min.js"></script>
   <script src="../lib/angular-mocks/angular-mocks.js"></script>
   <script src="tests.js"></script>
   <script>
@@ -24,8 +26,4 @@
     }
   </script>
 </body>
-    inject(function($controller,$rootScope){
-      var scope = $rootScope.$new();
-      controller = $controller('String2RegexCtrl', { $scope: scope } );
-    });
 </html>
