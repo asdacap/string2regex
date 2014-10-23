@@ -130,7 +130,13 @@
     </div>
 
     <div string2regex="main.holder"></div>
-    Resulting regex: {{ main.holder.regex }}
+    <label>Resulting regex:</label>
+    <pre>{{ main.holder.regex }}</pre>
+
+    <label>Holder JSON:</label>
+    <textarea class="form-control" ng-model="main.result_json" rows="15">
+    </textarea>
+    <div class="btn btn-default" ng-click="main.set_json()">Set JSON</div>
 
   </div>
 

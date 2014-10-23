@@ -142,6 +142,35 @@ angular.module('string2regex',['ui.bootstrap'])
     return commonClass;
   }
 
+  // Copied and modified from StackOverflow.
+  // Deeply extend dst with any other arguments.
+  // Array are iterated instead of replaced.
+  function extendDeep(dst) {
+    angular.forEach(arguments, function(obj) {
+      if (obj !== dst) {
+        angular.forEach(obj, function(value, key) {
+          if( value === undefined ) {
+            return;
+          }
+          if (dst[key] && dst[key].constructor && dst[key].constructor === Array){
+            var length = dst[key].length;
+            if(value.length < length){
+              length = value;
+            }
+            for(var i=0;i<length;i++){
+              extendDeep( dst[key][i], value[i] );
+            }
+          }else if (dst[key] && dst[key].constructor && dst[key].constructor === Object) {
+            extendDeep(dst[key], value);
+          } else {
+            dst[key] = value;
+          }
+        });   
+      }
+    });
+    return dst;
+  }
+
   // generate child groups.
   function generateChildGroups(string, depth){
     if( depth === undefined ){
@@ -466,7 +495,6 @@ angular.module('string2regex',['ui.bootstrap'])
     return result;
   }
 
-
   $scope.$watch('holder.sample',function(){
     var oldRoot = $scope.rootGroup;
     $scope.rootGroup = generateGroup(holder.sample);
@@ -480,10 +508,19 @@ angular.module('string2regex',['ui.bootstrap'])
   $scope.$watch('holder.endAnchor',function(){
     regenerateResult();
   });
+  $scope.$watch('holder.rootGroup',function(){
+    if(holder.rootGroup !== undefined){
+      extendDeep($scope.rootGroup, holder.rootGroup);
+    }
+  });
+  $scope.$watch('holder.regex',function(){
+    holder.rootGroup = JSON.parse(JSON.stringify($scope.rootGroup));
+  });
 
   $scope.rootGroup = generateGroup(holder.sample);
   $scope.rootGroup.ensureSelection();
   regenerateResult();
+
 
   $scope.getCharacterClass = getCharacterClass;
   $scope.findLCS = findLCS;
