@@ -142,35 +142,6 @@ angular.module('string2regex',['ui.bootstrap'])
     return commonClass;
   }
 
-  // Copied and modified from StackOverflow.
-  // Deeply extend dst with any other arguments.
-  // Array are iterated instead of replaced.
-  function extendDeep(dst) {
-    angular.forEach(arguments, function(obj) {
-      if (obj !== dst) {
-        angular.forEach(obj, function(value, key) {
-          if( value === undefined ) {
-            return;
-          }
-          if (dst[key] && dst[key].constructor && dst[key].constructor === Array){
-            var length = dst[key].length;
-            if(value.length < length){
-              length = value;
-            }
-            for(var i=0;i<length;i++){
-              extendDeep( dst[key][i], value[i] );
-            }
-          }else if (dst[key] && dst[key].constructor && dst[key].constructor === Object) {
-            extendDeep(dst[key], value);
-          } else {
-            dst[key] = value;
-          }
-        });   
-      }
-    });
-    return dst;
-  }
-
   // generate child groups.
   function generateChildGroups(string, depth){
     if( depth === undefined ){
@@ -218,7 +189,6 @@ angular.module('string2regex',['ui.bootstrap'])
     }
 
     var group={
-      picked: false,
       string: string,
       multiplier: 'omore', // Set default multiplier
       multiplier_min: 1,
@@ -495,6 +465,39 @@ angular.module('string2regex',['ui.bootstrap'])
     return result;
   }
 
+  // A function that apply serialized property of group 
+  // the property should be obtained from serializeGroup
+  function applySerializedGroupData(data,group){
+    if(group.string != data.string || data.childs.length != group.childs.length){
+      //When this happen, just log warning, and quietly fail.
+      console.warn('Serialized group string mismatch!');
+      return;
+    }
+
+    _.each(['string','multiplier','multiplier_min','multiplier_max','multiplier_constant','selectedClass'],function(prop){
+      group[prop] = data[prop];
+    });
+
+    for(var i=0;i<data.childs.length;i++){
+      applySerializedGroupData(data.childs[i],group.childs[i]);
+    }
+  }
+
+  // A function that create an object that can be safely
+  // converted to JSON and the reapply back to the group using
+  // applySerializedGroupData
+  function serializeGroup(group){
+    var obj = {};
+    _.each(['string','multiplier','multiplier_min','multiplier_max','multiplier_constant','selectedClass'],function(prop){
+      obj[prop] = group[prop];
+    });
+
+    obj.childs = _.map(group.childs,function(child){
+      return serializeGroup(child);
+    });
+    return obj;
+  }
+
   $scope.$watch('holder.sample',function(){
     var oldRoot = $scope.rootGroup;
     $scope.rootGroup = generateGroup(holder.sample);
@@ -510,18 +513,20 @@ angular.module('string2regex',['ui.bootstrap'])
   });
   $scope.$watch('holder.rootGroup',function(){
     if(holder.rootGroup !== undefined){
-      extendDeep($scope.rootGroup, holder.rootGroup);
+      applySerializedGroupData(holder.rootGroup,$scope.rootGroup);
     }
   });
-  $scope.$watch('holder.regex',function(){
-    holder.rootGroup = JSON.parse(JSON.stringify($scope.rootGroup));
-  });
+  $scope.$watch('rootGroup',function(){
+    holder.rootGroup = serializeGroup($scope.rootGroup);
+  },true);
 
   $scope.rootGroup = generateGroup(holder.sample);
   $scope.rootGroup.ensureSelection();
   regenerateResult();
 
 
+  $scope.serializeGroup = serializeGroup;
+  $scope.applySerializedGroupData = applySerializedGroupData;
   $scope.getCharacterClass = getCharacterClass;
   $scope.findLCS = findLCS;
   $scope.getCommonCharacterClass = getCommonCharacterClass;

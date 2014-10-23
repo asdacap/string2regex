@@ -72,8 +72,6 @@
   </script>
   <script type="text/ng-template" id="string2regex-template.html">
     <div class="string2regex">
-      <h1> Something is here </h1>
-
       <div class="string2regex-table">
         <div string2regex-group="rootGroup" />
       </div>
@@ -129,6 +127,8 @@
       </div>
     </div>
 
+    <div string2regex="main.holder"></div>
+    <label>Secondary String2Regex test</label>
     <div string2regex="main.holder"></div>
     <label>Resulting regex:</label>
     <pre>{{ main.holder.regex }}</pre>

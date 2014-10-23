@@ -94,6 +94,42 @@ describe("String2RegexCtrl",function(){
     });
   });
 
+  describe("serializeGroup",function(){
+    var group;
+    beforeEach(function(){
+      group = scope.generateGroup("this23");
+    });
+    it("should retain main group selection",function(){
+      group.selectedClass = 'somethingnew';
+      var serialized = scope.serializeGroup(group);
+      expect(serialized.selectedClass).to.eql('somethingnew');
+    });
+    it("should retain child group selection",function(){
+      group.childs[0].selectedClass = 'somethingnew';
+      var serialized = scope.serializeGroup(group);
+      expect(serialized.childs[0].selectedClass).to.eql('somethingnew');
+    });
+  });
+
+  describe("applySerializedGroupData",function(){
+    var group;
+    var data;
+    beforeEach(function(){
+      group = scope.generateGroup("this23");
+      data = scope.serializeGroup(group);
+    });
+    it("should apply main group selection",function(){
+      data.selectedClass = 'somethingnew';
+      scope.applySerializedGroupData(data,group);
+      expect(group.selectedClass).to.eql('somethingnew');
+    });
+    it("should retain child group selection",function(){
+      data.childs[0].selectedClass = 'somethingnew';
+      scope.applySerializedGroupData(data,group);
+      expect(group.childs[0].selectedClass).to.eql('somethingnew');
+    });
+  });
+
   describe("group",function(){
     var group;
     beforeEach(function(){
