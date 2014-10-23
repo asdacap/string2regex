@@ -1,7 +1,7 @@
-/*! string2regex - v0.0.1 - 2014-10-21
+/*! string2regex - v0.0.1 - 2014-10-23
 * Copyright (c) 2014 ; Licensed  */
 
-angular.module('string2regex',[])
+angular.module('string2regex',['ui.bootstrap'])
 .value('String2RegexConfiguration',{
   groupColors:[
     "#F5A9A9",
@@ -34,7 +34,7 @@ angular.module('string2regex',[])
       button_text: 'Alpha',
       button_tooltip: 'Alphabet'
     },
-    alphanumerical: {
+    alphanumerical: { 
       display_button: true,
       button_text: 'AlNum',
       button_tooltip: 'Alphanumerical'
@@ -65,7 +65,6 @@ angular.module('string2regex',[])
       button_tooltip: 'Any'
     }
   },
-
   characterClassFunction: function(char){ // Return an array of string corresponding to the character class.
     var result = [];
     if(char >= '0' && char <= '9'){
@@ -186,6 +185,10 @@ angular.module('string2regex',[])
     var group={
       picked: false,
       string: string,
+      multiplier: 'omore', // Set default multiplier
+      multiplier_min: 1,
+      multiplier_max: 10,
+      multiplier_constant: 1,
       getSize: function(){
         return this.string.length;
       },
@@ -243,6 +246,12 @@ angular.module('string2regex',[])
         // Select a characterClass from this group.
         this.ensureNoSelection();
         this.selectedClass = characterClass;
+
+        if(characterClass == 'constant'){ // auto set multipler to {1} on constant
+          this.multiplier = 'constant';
+          this.multiplier_constant = 1;
+        }
+
         $scope.rootGroup.ensureSelection();
         regenerateResult();
       },
@@ -301,7 +310,10 @@ angular.module('string2regex',[])
       }, 
       preserveSettingFromOldGroup: function(group){
         // attempt to regain setting from old group.
-        this.selectedClass = group.selectedClass;
+        var self = this;
+        _.each(['selectedClass','multiplier','multiplier_min','multiplier_max','multiplier_constant'],function(val){
+          self[val] = group[val];
+        });
 
         // The rest if to see if any child from group is of equal commonClass
         // If so, call preserveSetting from them.
@@ -428,6 +440,15 @@ angular.module('string2regex',[])
   $scope.regenerateResult = regenerateResult;
   $scope.getColorForDepth = getColorForDepth;
 } ])
+.controller('String2RegexGroupEditorCtrl',['$scope','group','$modalInstance','String2RegexConfiguration',function($scope,group,$modalInstance,String2RegexConfiguration){
+  this.close = function(){
+    console.log("Trying to close");
+    $modalInstance.close();
+  };
+  this.group = group;
+  $scope.group = group;
+  $scope.classInfo = String2RegexConfiguration.classInfo;
+}])
 .directive('string2regex',function(){
 
   return {
@@ -440,7 +461,7 @@ angular.module('string2regex',[])
     templateUrl: 'string2regex-template.html'
   };
 })
-.directive('string2regexGroup',['RecursionHelper',function(RecursionHelper){
+.directive('string2regexGroup',['RecursionHelper','$modal',function(RecursionHelper, $modal){
 
   return {
     scope: {
@@ -448,6 +469,16 @@ angular.module('string2regex',[])
     },
     controller: function($scope,String2RegexConfiguration){
       $scope.classInfo = String2RegexConfiguration.classInfo;
+      $scope.openEditor = function( group ){
+        $modal.open({
+          templateUrl: 'String2RegexGroupEditor.html',
+          controller: 'String2RegexGroupEditorCtrl',
+          controllerAs: 'editor',
+          resolve:{
+            group: function(){ return group; }
+          }
+        });
+      };
     },
     link: function(scope, element, attrs, controllers){
     },
@@ -500,4 +531,59 @@ angular.module('string2regex',[])
             };
         }
     };
-}]);
+}])
+.directive('ngMin', function() { // Fix angular's broken ng-min
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+    link: function(scope, elem, attr, ctrl) {
+      function isEmpty(value) {
+        return angular.isUndefined(value) || value === '' || value === null || value !== value;
+      }
+      scope.$watch(attr.ngMin, function(){
+        ctrl.$setViewValue(ctrl.$viewValue);
+      });
+      var minValidator = function(value) {
+        var min = scope.$eval(attr.ngMin) || 0;
+        if (!isEmpty(value) && value < min) {
+          ctrl.$setValidity('ngMin', false);
+          return undefined;
+        } else {
+          ctrl.$setValidity('ngMin', true);
+          return value;
+        }
+      };
+
+      ctrl.$parsers.push(minValidator);
+      ctrl.$formatters.push(minValidator);
+    }
+  };
+})
+.directive('ngMax', function() { // Fix Angular's broken max
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+    link: function(scope, elem, attr, ctrl) {
+      function isEmpty(value) {
+        return angular.isUndefined(value) || value === '' || value === null || value !== value;
+      }
+      scope.$watch(attr.ngMax, function(){
+        ctrl.$setViewValue(ctrl.$viewValue);
+      });
+      var maxValidator = function(value) {
+        var max = scope.$eval(attr.ngMax) || Infinity;
+        if (!isEmpty(value) && value > max) {
+          ctrl.$setValidity('ngMax', false);
+          return undefined;
+        } else {
+          ctrl.$setValidity('ngMax', true);
+          return value;
+        }
+      };
+
+      ctrl.$parsers.push(maxValidator);
+      ctrl.$formatters.push(maxValidator);
+    }
+  };
+});
+

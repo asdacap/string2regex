@@ -186,13 +186,29 @@ describe("String2RegexCtrl",function(){
         group.select('any');
         expect(scope.rootGroup.ensureSelection).to.have.been.called;
       });
+      it("if select 'constant', it should set multiplier to 'constant' and multiplier_constant to 1",function(){
+        group.select('constant');
+        expect(group.selectedClass).to.eql('constant');
+        expect(group.multiplier).to.eql('constant');
+        expect(group.multiplier_constant).to.eql(1);
+      });
     });
     describe('preserveSettingFromOldGroup',function(){
-      it("should preserve selectedClass",function(){
+      it("should preserve properties",function(){
         group.selectedClass = 'any';
+        group.multiplier = 'zmore';
+        group.multiplier_min = 10;
+        group.multiplier_max = 100;
+        group.multiplier_constant = 100;
+
         var newgroup = scope.generateGroup(group.string);
         newgroup.preserveSettingFromOldGroup(group);
+
         expect(newgroup.selectedClass).to.eql('any');
+        expect(newgroup.multiplier).to.eql('zmore');
+        expect(newgroup.multiplier_min).to.eql(10);
+        expect(newgroup.multiplier_max).to.eql(100);
+        expect(newgroup.multiplier_constant).to.eql(100);
       });
       it("should preserve child's selectedClass",function(){
         group.childs[0].selectedClass = 'any';
