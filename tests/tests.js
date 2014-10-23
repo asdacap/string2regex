@@ -231,6 +231,15 @@ describe("String2RegexCtrl",function(){
         group.selectedClass = 'any';
         expect(group.generateRegex()).to.eql('.+');
       });
+      it("should generate regex properly",function(){
+        group.ensureNoSelection();
+        group.childs[0].selectedClass = 'constant';
+        group.childs[0].multiplier = 'constant';
+        group.childs[0].multiplier_constant = '2';
+        group.childs[1].selectedClass = 'constant';
+        group.childs[1].multiplier = 'optional';
+        expect(group.generateRegex()).to.eql('Abc{2}!?');
+      });
     });
   });
 

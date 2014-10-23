@@ -300,10 +300,36 @@ angular.module('string2regex',['ui.bootstrap'])
         }
         groupedPartition.push(cur);
 
-        // For now we assume all multiplied is +
-        // So we could just append them.
+        // Merged the partition. 
+        // If one of the multiplier is omore, then merge them all.
+        // If one of the multiplier is zmore, then merge them all.
+        // Then just merge them.
         for(i=0;i<groupedPartition.length;i++){
-          res+=groupedPartition[i].regex+'+';
+          var cgroupedPartition = groupedPartition[i];
+          if(_.some(cgroupedPartition.list,function(part){
+            return part.group.multiplier == 'omore';
+          })){
+            res+=cgroupedPartition.regex+'+';
+          }else if(_.some(cgroupedPartition.list,function(part){
+            return part.group.multiplier == 'zmore';
+          })){
+            res+=cgroupedPartition.regex+'.';
+          }else{
+            //merge them one by one.
+            _.each(cgroupedPartition.list,function(part){
+              if(part.group.multiplier == 'constant'){
+                if(part.group.multiplier_constant == 1){
+                  res+=cgroupedPartition.regex;
+                }else{
+                  res+=cgroupedPartition.regex+'{'+part.group.multiplier_constant+'}';
+                }
+              }else if(part.group.multiplier == 'optional'){
+                res+=cgroupedPartition.regex+'?';
+              }else if(part.group.multiplier == 'range'){
+                res+=cgroupedPartition.regex+'{'+part.group.multiplier_min+','+part.group.multiplier_max+'}';
+              }
+            });
+          }
         }
 
         return res;
@@ -333,6 +359,9 @@ angular.module('string2regex',['ui.bootstrap'])
             ccindex++;
           }
         }
+      },
+      regenerateResult: function(){ // A proxy, so that the dialog can call regenerateResult()
+        regenerateResult();
       },
       childs: generateChildGroups(string, depth+1)
     };
@@ -420,6 +449,7 @@ angular.module('string2regex',['ui.bootstrap'])
     return result;
   }
 
+
   $scope.$watch('holder.sample',function(){
     var oldRoot = $scope.rootGroup;
     $scope.rootGroup = generateGroup(holder.sample);
@@ -440,17 +470,18 @@ angular.module('string2regex',['ui.bootstrap'])
   $scope.regenerateResult = regenerateResult;
   $scope.getColorForDepth = getColorForDepth;
 } ])
+
 .controller('String2RegexGroupEditorCtrl',['$scope','group','$modalInstance','String2RegexConfiguration',function($scope,group,$modalInstance,String2RegexConfiguration){
   this.close = function(){
-    console.log("Trying to close");
+    group.regenerateResult();
     $modalInstance.close();
   };
   this.group = group;
   $scope.group = group;
   $scope.classInfo = String2RegexConfiguration.classInfo;
 }])
-.directive('string2regex',function(){
 
+.directive('string2regex',function(){
   return {
     scope: {
       holder: '=string2regex'
