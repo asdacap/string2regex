@@ -205,33 +205,37 @@ angular.module('string2regex',['ui.bootstrap'])
         var selectedChild = _.find(this.childs,function(child){ return child.hasSelected(); });
         return selectedChild !== undefined;
       },
-      ensureSelection: function(changeTo){ 
+      ensureSelection: function(parent){ 
         // If any child is selected, this cannot be selected. 
         // If any child is selected, all child must be selected.
         // If none of the child is selected, then this must be selected.
-        // Also, changeTo is the default class to change to.
+        // Also, pass parent to change child setting.
         // Used to hint what class to put when the parent need to fill unselected child
-        // with the parent's class.
-        
-        if(changeTo === undefined || changeTo === ''){
-          changeTo = defaultClass;
-        }
+        // with the parent's class properties.
 
         if(_.any(this.childs,function(child){
           return child.hasSelected();
         })){
-          var selected = this.selectedClass;
-          if(selected === ''){
-            selected = changeTo;
+          if(parent !== undefined){
+            _.extend(this,_.pick(parent,'selectedClass','multiplier','multipler_constant','multiplier_min','multiplier_max'));
+          } // Do this, so child have something to inherit.
+          if( this.selectedClass === ''){
+            this.selectedClass = defaultClass; // if parent does not have selectedClass
           }
+          var self = this;
           _.each(this.childs,function(child){
-            child.ensureSelection(selected);
+            child.ensureSelection(self);
           });
           this.selectedClass = '';
         }else{
           // no child selected
           if(this.selectedClass === ''){
-            this.selectedClass = changeTo;
+            if(parent !== undefined){
+              _.extend(this,_.pick(parent,'selectedClass','multiplier','multipler_constant','multiplier_min','multiplier_max'));
+            }
+            if( this.selectedClass === ''){
+              this.selectedClass = defaultClass; // if parent does not have selectedClass
+            }
           }
         }
       },
