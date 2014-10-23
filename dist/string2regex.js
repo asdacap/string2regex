@@ -119,6 +119,12 @@ angular.module('string2regex',['ui.bootstrap'])
 })
 .controller('String2RegexCtrl',['$scope','String2RegexConfiguration',function($scope,String2RegexConfiguration){
   var holder = $scope.holder;
+  _.defaults(holder,{
+    sample: '',
+    regex: '',
+    startAnchor: true,
+    endAnchor: true
+  });
   var groupColors = String2RegexConfiguration.groupColors;
   var getCharacterClass = _.memoize(String2RegexConfiguration.characterClassFunction);
   var defaultClass = String2RegexConfiguration.defaultClass;
@@ -336,6 +342,13 @@ angular.module('string2regex',['ui.bootstrap'])
           }
         }
 
+        if(holder.startAnchor){
+          res = '^'+res;
+        }
+        if(holder.endAnchor){
+          res = res+'$';
+        }
+
         return res;
       }, 
       preserveSettingFromOldGroup: function(group){
@@ -459,6 +472,12 @@ angular.module('string2regex',['ui.bootstrap'])
     $scope.rootGroup = generateGroup(holder.sample);
     $scope.rootGroup.preserveSettingFromOldGroup(oldRoot);
     $scope.rootGroup.ensureSelection();
+    regenerateResult();
+  });
+  $scope.$watch('holder.startAnchor',function(){
+    regenerateResult();
+  });
+  $scope.$watch('holder.endAnchor',function(){
     regenerateResult();
   });
 

@@ -107,11 +107,29 @@
   <div class="container">
     <h1>String2Regex Demo</h1>
 
-    Sample String:
-    <input type="text" ng-model="main.holder.sample" />
+    
+    <div class="row">
+      <div class="col-md-10">
+        <div class="form-group">
+          <label>Sample String:</label>
+          <input type="text" class="form-control" ng-model="main.holder.sample" />
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="main.holder.startAnchor"/> Start Anchor
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="main.holder.endAnchor"/> End Anchor
+          </label>
+        </div>
+      </div>
+    </div>
 
     <div string2regex="main.holder"></div>
-
     Resulting regex: {{ main.holder.regex }}
 
   </div>

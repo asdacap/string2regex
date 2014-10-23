@@ -97,6 +97,8 @@ describe("String2RegexCtrl",function(){
   describe("group",function(){
     var group;
     beforeEach(function(){
+      scope.holder.startAnchor = false;
+      scope.holder.endAnchor = false;
       group = scope.generateGroup("this23");
     });
     describe("getGroupColor",function(){
@@ -239,6 +241,25 @@ describe("String2RegexCtrl",function(){
         group.childs[1].selectedClass = 'constant';
         group.childs[1].multiplier = 'optional';
         expect(group.generateRegex()).to.eql('Abc{2}!?');
+      });
+      it('should start with ^ if startAnchor is true',function(){
+        scope.holder.startAnchor = true;
+        group.ensureNoSelection();
+        group.selectedClass = 'constant';
+        expect(group.generateRegex()).to.eql('^Abc!+');
+      });
+      it('should end with $ if endAnchor is true',function(){
+        scope.holder.endAnchor = true;
+        group.ensureNoSelection();
+        group.selectedClass = 'constant';
+        expect(group.generateRegex()).to.eql('Abc!+$');
+      });
+      it('should start with ^ and end with $ if startAnchor is true and endAnchor is true',function(){
+        scope.holder.endAnchor = true;
+        scope.holder.startAnchor = true;
+        group.ensureNoSelection();
+        group.selectedClass = 'constant';
+        expect(group.generateRegex()).to.eql('^Abc!+$');
       });
     });
   });
