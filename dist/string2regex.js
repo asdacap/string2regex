@@ -129,6 +129,13 @@ angular.module('string2regex',['ui.bootstrap'])
   var getCharacterClass = _.memoize(String2RegexConfiguration.characterClassFunction);
   var defaultClass = String2RegexConfiguration.defaultClass;
   var generateRegexPortion = String2RegexConfiguration.generateRegexPortion;
+  var groupStateProperties = [ // List of properties that is considered as state 
+    'multiplier',              // These are used in serialization and preserveSettingFromOldGroup
+    'multiplier_min',
+    'multiplier_max',
+    'multiplier_constant',
+    'selectedClass'
+  ]; 
 
   $scope.classInfo = String2RegexConfiguration.classInfo;
 
@@ -353,7 +360,7 @@ angular.module('string2regex',['ui.bootstrap'])
       preserveSettingFromOldGroup: function(group){
         // attempt to regain setting from old group.
         var self = this;
-        _.each(['selectedClass','multiplier','multiplier_min','multiplier_max','multiplier_constant'],function(val){
+        _.each(groupStateProperties,function(val){
           self[val] = group[val];
         });
 
@@ -474,7 +481,7 @@ angular.module('string2regex',['ui.bootstrap'])
       return;
     }
 
-    _.each(['string','multiplier','multiplier_min','multiplier_max','multiplier_constant','selectedClass'],function(prop){
+    _.each(groupStateProperties,function(prop){
       group[prop] = data[prop];
     });
 
@@ -488,9 +495,10 @@ angular.module('string2regex',['ui.bootstrap'])
   // applySerializedGroupData
   function serializeGroup(group){
     var obj = {};
-    _.each(['string','multiplier','multiplier_min','multiplier_max','multiplier_constant','selectedClass'],function(prop){
+    _.each(groupStateProperties,function(prop){
       obj[prop] = group[prop];
     });
+    obj.string = group.string;
 
     obj.childs = _.map(group.childs,function(child){
       return serializeGroup(child);
