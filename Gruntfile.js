@@ -17,7 +17,7 @@ module.exports = function(grunt) {
         stripBanners: true
       },
       dist: {
-        src: ['src/<%= pkg.name %>.js'],
+        src: ['src/<%= pkg.name %>.js', '<%= html2js.main.dest %>'],
         dest: 'dist/<%= pkg.name %>.js'
       }
     },
@@ -80,16 +80,20 @@ module.exports = function(grunt) {
       },
       lib_test: {
         files: '<%= jshint.lib_test.src %>',
-        tasks: ['jshint:lib_test','concat','less','uglify','mocha:test']
+        tasks: ['jshint:lib_test','concat','uglify','mocha:dev']
       },
       less: {
         files: 'src/*.less',
         tasks: ['less']
+      },
+      html2js: {
+        files: 'src/*.less',
+        tasks: ['html2js','concat','uglify','mocha:all']
       }
     },
     mocha: {
-      test: {
-        src: ['tests/index.html'],
+      dev: {
+        src: ['tests/dev.html'],
         options: {
           run: true
         }
@@ -112,6 +116,15 @@ module.exports = function(grunt) {
           "dist/string2regex.css": "src/string2regex.less"
         }
       }
+    },
+    html2js: {
+      options: {
+        module: 'string2regex.template'
+      },
+      main: {
+        src: ['src/**/*.tpl.html'],
+        dest: 'tmp/templates.js'
+      }
     }
   });
 
@@ -125,8 +138,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-update-json');
   grunt.loadNpmTasks('grunt-bower-task');
   grunt.loadNpmTasks('grunt-mocha');
+  grunt.loadNpmTasks('grunt-html2js');
 
   // Default task.
-  grunt.registerTask('default', ['bower','update_json','jshint','concat', 'less', 'uglify', 'mocha:all']);
+  grunt.registerTask('default', ['bower','update_json','jshint','html2js','concat', 'less', 'uglify', 'mocha:all']);
 
 };

@@ -1,5 +1,5 @@
 
-angular.module('string2regex',['ui.bootstrap'])
+angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 .value('String2RegexConfiguration',{
   groupColors:[
     "#F5A9A9",
@@ -591,7 +591,7 @@ angular.module('string2regex',['ui.bootstrap'])
     controller: 'String2RegexCtrl',
     link: function(scope, element, attrs, controllers){
     },
-    templateUrl: 'string2regex-template.html'
+    templateUrl: 'string2regex.tpl.html'
   };
 })
 .directive('string2regexGroup',['RecursionHelper','$modal',function(RecursionHelper, $modal){
@@ -604,7 +604,7 @@ angular.module('string2regex',['ui.bootstrap'])
       $scope.classInfo = String2RegexConfiguration.classInfo;
       $scope.openEditor = function( group ){
         $modal.open({
-          templateUrl: 'String2RegexGroupEditor.html',
+          templateUrl: 'string2regex-groupeditor.tpl.html',
           controller: 'String2RegexGroupEditorCtrl',
           controllerAs: 'editor',
           resolve:{
@@ -620,7 +620,7 @@ angular.module('string2regex',['ui.bootstrap'])
       // And return the linking function(s) which it returns
       return RecursionHelper.compile(element);
     },
-    templateUrl: 'string2regex-template-group.html'
+    templateUrl: 'string2regex-group.tpl.html'
   };
 }])
 //Copied from StackOverflow

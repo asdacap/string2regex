@@ -1,7 +1,7 @@
 /*! string2regex - v0.0.1 - 2014-10-24
 * Copyright (c) 2014 ; Licensed  */
 
-angular.module('string2regex',['ui.bootstrap'])
+angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 .value('String2RegexConfiguration',{
   groupColors:[
     "#F5A9A9",
@@ -593,7 +593,7 @@ angular.module('string2regex',['ui.bootstrap'])
     controller: 'String2RegexCtrl',
     link: function(scope, element, attrs, controllers){
     },
-    templateUrl: 'string2regex-template.html'
+    templateUrl: 'string2regex.tpl.html'
   };
 })
 .directive('string2regexGroup',['RecursionHelper','$modal',function(RecursionHelper, $modal){
@@ -606,7 +606,7 @@ angular.module('string2regex',['ui.bootstrap'])
       $scope.classInfo = String2RegexConfiguration.classInfo;
       $scope.openEditor = function( group ){
         $modal.open({
-          templateUrl: 'String2RegexGroupEditor.html',
+          templateUrl: 'string2regex-groupeditor.tpl.html',
           controller: 'String2RegexGroupEditorCtrl',
           controllerAs: 'editor',
           resolve:{
@@ -622,7 +622,7 @@ angular.module('string2regex',['ui.bootstrap'])
       // And return the linking function(s) which it returns
       return RecursionHelper.compile(element);
     },
-    templateUrl: 'string2regex-template-group.html'
+    templateUrl: 'string2regex-group.tpl.html'
   };
 }])
 //Copied from StackOverflow
@@ -722,3 +722,107 @@ angular.module('string2regex',['ui.bootstrap'])
   };
 });
 
+
+angular.module('string2regex.template', ['string2regex-group.tpl.html', 'string2regex-groupeditor.tpl.html', 'string2regex.tpl.html']);
+
+angular.module("string2regex-group.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("string2regex-group.tpl.html",
+    "<table ng-if=\"group !== undefined\" class=\"group-table\" style=\"background-color: {{ group.getGroupColor()}}\">\n" +
+    "      <tbody>\n" +
+    "        <tr ng-if=\"group.childs.length == 0\">\n" +
+    "          <td colspan=\"{{ group.string.length }}\">\n" +
+    "            <div class=\"char-block\"><span>{{ group.string }}</span></div>\n" +
+    "          </td>\n" +
+    "        </tr>\n" +
+    "        <tr ng-if=\"group.childs.length>=1\">\n" +
+    "          <td ng-repeat=\"child in group.childs\" colspan=\"{{ child.string.length }}\">\n" +
+    "            <div string2regex-group=\"child\" />\n" +
+    "          </td>\n" +
+    "        </tr>\n" +
+    "        <tr>\n" +
+    "          <td colspan=\"{{ group.string.length }}\">\n" +
+    "            <div ng-repeat=\"class in group.commonClass\" ng-if=\"classInfo[class].display_button || class == group.selectedClass\" ng-class=\" class == group.selectedClass ? ['class-icon','selected','btn','btn-xs','btn-primary'] : ['class-icon','btn','btn-xs','btn-default'] \" ng-click=\"group.select(class)\" title=\"{{classInfo[class].button_tooltip}}\">\n" +
+    "              {{ classInfo[class].button_text }}\n" +
+    "            </div>\n" +
+    "            <div class=\"btn btn-xs btn-default\" ng-click=\"openEditor(group)\"><span class=\"glyphicon glyphicon-cog\" /></div>\n" +
+    "          </td>\n" +
+    "        </tr>\n" +
+    "      </tbody>\n" +
+    "    </table>\n" +
+    "");
+}]);
+
+angular.module("string2regex-groupeditor.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("string2regex-groupeditor.tpl.html",
+    "<div class=\"modal-header\">\n" +
+    "      <h3 class=\"modal-title\">Group Options</h3>\n" +
+    "    </div>\n" +
+    "    <div class=\"modal-body\">\n" +
+    "      <label>String:</label> <pre>{{ group.string }}</pre>\n" +
+    "      <form name='mainform'>\n" +
+    "        <div class=\"form-group\">\n" +
+    "          <label>Available Class: </label><br />\n" +
+    "          <span ng-repeat=\"class in group.commonClass\">\n" +
+    "            <span ng-class=\" class == group.selectedClass ? ['class-icon','selected','btn','btn-sm','btn-primary'] : ['class-icon','btn','btn-sm','btn-default'] \" ng-click=\"group.select(class)\" title=\"{{classInfo[class].button_tooltip}}\">\n" +
+    "              {{ classInfo[class].button_text }}\n" +
+    "            </span>\n" +
+    "\n" +
+    "          </span>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <div class=\"row\">\n" +
+    "          <div class=\"col-xs-4\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label>Multiplier: </label>\n" +
+    "              <select ng-model=\"group.multiplier\" class=\"form-control\" required>\n" +
+    "                <option value=\"constant\">Constant</option>\n" +
+    "                <option value=\"range\">Range</option>\n" +
+    "                <option value=\"omore\">One or more (+)</option>\n" +
+    "                <option value=\"zmore\">Zero or more (*)</option>\n" +
+    "                <option value=\"optional\">Optional one (?)</option>\n" +
+    "              </select>\n" +
+    "            </div>\n" +
+    "          </div>\n" +
+    "          <div ng-if=\"group.multiplier == 'constant'\">\n" +
+    "            <div class=\"form-group col-xs-8\">\n" +
+    "              <label> Multiplier value: </label>\n" +
+    "              <input type=\"number\" class=\"form-control\" ng-model=\"group.multiplier_constant\" min=\"1\" ng-required=\"group.multiplier == 'constant'\"></input>\n" +
+    "            </div>\n" +
+    "          </div>\n" +
+    "          <div ng-if=\"group.multiplier == 'range'\">\n" +
+    "            <div class=\"form-group col-xs-4\">\n" +
+    "              <label> Multiplier Min: </label>\n" +
+    "              <input type=\"number\" class=\"form-control\" ng-model=\"group.multiplier_min\" min=\"1\" ng-max=\"{{group.multiplier_max}}\" ng-required=\"group.multiplier == 'range'\"></input>\n" +
+    "            </div>\n" +
+    "            <div class=\"form-group col-xs-4\">\n" +
+    "              <label> Multiplier Max: </label>\n" +
+    "              <input type=\"number\" class=\"form-control\" ng-model=\"group.multiplier_max\" min=\"{{group.multiplier_min}}\" ng-min=\"{{group.multiplier_min}}\" ng-required=\"group.multiplier == 'range'\"></input>\n" +
+    "            </div>\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <div class=\"checkbox\">\n" +
+    "          <label>\n" +
+    "            <input type=\"checkbox\" ng-model=\"group.do_capture\"/> Capture Component\n" +
+    "          </label>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <div class=\"clearfix\" />\n" +
+    "\n" +
+    "      </form>\n" +
+    "    </div>\n" +
+    "    <div class=\"modal-footer\">\n" +
+    "      <div ng-class=\"'btn btn-primary '+(mainform.$valid ? '' : 'disabled')\" ng-click=\"mainform.$valid && editor.close()\">Close</div>\n" +
+    "    </div>\n" +
+    "");
+}]);
+
+angular.module("string2regex.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("string2regex.tpl.html",
+    "<div class=\"string2regex\">\n" +
+    "      <div class=\"string2regex-table\">\n" +
+    "        <div string2regex-group=\"rootGroup\" />\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "");
+}]);

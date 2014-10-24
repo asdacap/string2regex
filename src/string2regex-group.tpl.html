@@ -1,0 +1,22 @@
+    <table ng-if="group !== undefined" class="group-table" style="background-color: {{ group.getGroupColor()}}">
+      <tbody>
+        <tr ng-if="group.childs.length == 0">
+          <td colspan="{{ group.string.length }}">
+            <div class="char-block"><span>{{ group.string }}</span></div>
+          </td>
+        </tr>
+        <tr ng-if="group.childs.length>=1">
+          <td ng-repeat="child in group.childs" colspan="{{ child.string.length }}">
+            <div string2regex-group="child" />
+          </td>
+        </tr>
+        <tr>
+          <td colspan="{{ group.string.length }}">
+            <div ng-repeat="class in group.commonClass" ng-if="classInfo[class].display_button || class == group.selectedClass" ng-class=" class == group.selectedClass ? ['class-icon','selected','btn','btn-xs','btn-primary'] : ['class-icon','btn','btn-xs','btn-default'] " ng-click="group.select(class)" title="{{classInfo[class].button_tooltip}}">
+              {{ classInfo[class].button_text }}
+            </div>
+            <div class="btn btn-xs btn-default" ng-click="openEditor(group)"><span class="glyphicon glyphicon-cog" /></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
