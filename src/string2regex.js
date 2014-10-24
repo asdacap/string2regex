@@ -271,6 +271,9 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       },
       select: function(characterClass){ 
         // Select a characterClass from this group.
+        if(characterClass === ''){
+          return;
+        }
         this.ensureNoSelection();
         this.selectedClass = characterClass;
 
@@ -595,12 +598,41 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 } ])
 
 .controller('String2RegexGroupEditorCtrl',['$scope','group','$modalInstance','String2RegexConfiguration',function($scope,group,$modalInstance,String2RegexConfiguration){
-  this.close = function(){
+  var editableProperties = [
+    'multiplier',              
+    'multiplier_min',
+    'multiplier_max',
+    'multiplier_constant',
+    'do_capture',
+    'capture_name',
+    'selectedClass'
+  ];
+
+  var fakegroup = {};
+  _.each(editableProperties,function(prop){
+    fakegroup[prop] = group[prop];
+  });
+
+  this.save = function(){
+    if(!$scope.mainform.$valid){
+      $scope.mainform.$setDirty();
+      return;
+    }
+    _.each(editableProperties,function(prop){
+      group[prop] = fakegroup[prop];
+    });
+    group.select( fakegroup.selectedClass );
     group.regenerateResult();
     $modalInstance.close();
   };
-  this.group = group;
-  $scope.group = group;
+
+  this.close = function(){
+    $modalInstance.close();
+  };
+
+  this.group = fakegroup;
+  $scope.group = fakegroup;
+  $scope.origroup = group;
   $scope.classInfo = String2RegexConfiguration.classInfo;
 }])
 

@@ -1,16 +1,15 @@
     <div class="modal-header">
       <h3 class="modal-title">Group Options</h3>
     </div>
+      <form name='mainform' ng-submit="editor.save()">
     <div class="modal-body">
-      <label>String:</label> <pre>{{ group.string }}</pre>
-      <form name='mainform'>
+      <label>String:</label> <pre>{{ origroup.string }}</pre>
         <div class="form-group">
           <label>Available Class: </label><br />
-          <span ng-repeat="class in group.commonClass">
-            <span ng-class=" class == group.selectedClass ? ['class-icon','selected','btn','btn-sm','btn-primary'] : ['class-icon','btn','btn-sm','btn-default'] " ng-click="group.select(class)" title="{{classInfo[class].button_tooltip}}">
+          <span ng-repeat="class in origroup.commonClass">
+            <span ng-class=" class == group.selectedClass ? ['class-icon','selected','btn','btn-sm','btn-primary'] : ['class-icon','btn','btn-sm','btn-default'] " ng-click=" group.selectedClass = class " title="{{classInfo[class].button_tooltip}}">
               {{ classInfo[class].button_text }}
             </span>
-
           </span>
         </div>
 
@@ -57,8 +56,9 @@
 
         <div class="clearfix" />
 
-      </form>
     </div>
     <div class="modal-footer">
-      <div ng-class="'btn btn-primary '+(mainform.$valid ? '' : 'disabled')" ng-click="mainform.$valid && editor.close()">Close</div>
+      <div ng-class="'btn btn-default'" ng-click="editor.close()">Close</div>
+      <button ng-class="'btn btn-primary'">Save</button>
     </div>
+      </form>

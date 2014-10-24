@@ -273,6 +273,9 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       },
       select: function(characterClass){ 
         // Select a characterClass from this group.
+        if(characterClass === ''){
+          return;
+        }
         this.ensureNoSelection();
         this.selectedClass = characterClass;
 
@@ -597,12 +600,41 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 } ])
 
 .controller('String2RegexGroupEditorCtrl',['$scope','group','$modalInstance','String2RegexConfiguration',function($scope,group,$modalInstance,String2RegexConfiguration){
-  this.close = function(){
+  var editableProperties = [
+    'multiplier',              
+    'multiplier_min',
+    'multiplier_max',
+    'multiplier_constant',
+    'do_capture',
+    'capture_name',
+    'selectedClass'
+  ];
+
+  var fakegroup = {};
+  _.each(editableProperties,function(prop){
+    fakegroup[prop] = group[prop];
+  });
+
+  this.save = function(){
+    if(!$scope.mainform.$valid){
+      $scope.mainform.$setDirty();
+      return;
+    }
+    _.each(editableProperties,function(prop){
+      group[prop] = fakegroup[prop];
+    });
+    group.select( fakegroup.selectedClass );
     group.regenerateResult();
     $modalInstance.close();
   };
-  this.group = group;
-  $scope.group = group;
+
+  this.close = function(){
+    $modalInstance.close();
+  };
+
+  this.group = fakegroup;
+  $scope.group = fakegroup;
+  $scope.origroup = group;
   $scope.classInfo = String2RegexConfiguration.classInfo;
 }])
 
@@ -778,16 +810,15 @@ angular.module("string2regex-groupeditor.tpl.html", []).run(["$templateCache", f
     "<div class=\"modal-header\">\n" +
     "      <h3 class=\"modal-title\">Group Options</h3>\n" +
     "    </div>\n" +
+    "      <form name='mainform' ng-submit=\"editor.save()\">\n" +
     "    <div class=\"modal-body\">\n" +
-    "      <label>String:</label> <pre>{{ group.string }}</pre>\n" +
-    "      <form name='mainform'>\n" +
+    "      <label>String:</label> <pre>{{ origroup.string }}</pre>\n" +
     "        <div class=\"form-group\">\n" +
     "          <label>Available Class: </label><br />\n" +
-    "          <span ng-repeat=\"class in group.commonClass\">\n" +
-    "            <span ng-class=\" class == group.selectedClass ? ['class-icon','selected','btn','btn-sm','btn-primary'] : ['class-icon','btn','btn-sm','btn-default'] \" ng-click=\"group.select(class)\" title=\"{{classInfo[class].button_tooltip}}\">\n" +
+    "          <span ng-repeat=\"class in origroup.commonClass\">\n" +
+    "            <span ng-class=\" class == group.selectedClass ? ['class-icon','selected','btn','btn-sm','btn-primary'] : ['class-icon','btn','btn-sm','btn-default'] \" ng-click=\" group.selectedClass = class \" title=\"{{classInfo[class].button_tooltip}}\">\n" +
     "              {{ classInfo[class].button_text }}\n" +
     "            </span>\n" +
-    "\n" +
     "          </span>\n" +
     "        </div>\n" +
     "\n" +
@@ -834,11 +865,12 @@ angular.module("string2regex-groupeditor.tpl.html", []).run(["$templateCache", f
     "\n" +
     "        <div class=\"clearfix\" />\n" +
     "\n" +
-    "      </form>\n" +
     "    </div>\n" +
     "    <div class=\"modal-footer\">\n" +
-    "      <div ng-class=\"'btn btn-primary '+(mainform.$valid ? '' : 'disabled')\" ng-click=\"mainform.$valid && editor.close()\">Close</div>\n" +
+    "      <div ng-class=\"'btn btn-default'\" ng-click=\"editor.close()\">Close</div>\n" +
+    "      <button ng-class=\"'btn btn-primary'\">Save</button>\n" +
     "    </div>\n" +
+    "      </form>\n" +
     "");
 }]);
 
