@@ -295,14 +295,8 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
         }
         return res;
       },
-      generateRegex: function(){
-        // Return a regex string.
-        
-        var res = '';
+      generateGroupedRegexPartitions: function(){
         var partitions = this.generateRegexPartitions();
-        if(partitions.length === 0){
-          return res;
-        }
 
         // Group by same regex
         // Or if no capture.
@@ -315,7 +309,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
         var i;
         for(i=1;i<partitions.length;i++){
           var cpart = partitions[i];
-          if(cpart.regex === cur.regex && !cpart.do_capture){
+          if(cpart.regex === cur.regex && !cur.do_capture){
             cur.list.push(cpart);
           }else{
             groupedPartition.push(cur);
@@ -327,6 +321,18 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
           }
         }
         groupedPartition.push(cur);
+        return groupedPartition;
+
+      },
+      generateRegex: function(){
+        // Return a regex string.
+        
+        var res = '';
+        var i;
+        var groupedPartition = this.generateGroupedRegexPartitions();
+        if(groupedPartition.length === 0){
+          return res;
+        }
 
         // Generate regex according to groupedPartition. 
         // If one of the multiplier is omore, then merge them all. (in a group)

@@ -317,6 +317,17 @@ describe("String2RegexCtrl",function(){
         group.ensureSelection();
         expect(group.generateRegex()).to.eql('(Abc)!+');
       });
+      it('should generate regex with capture for child and reduce redudancy properly.',function(){
+        group = scope.generateGroup('abcdefg');
+        group.multiplier = 'omore';
+        group.selectedClass = 'any';
+        group.childs[2].select('constant');
+        group.childs[2].do_capture = true;
+        group.ensureSelection();
+        group.childs[3].do_capture = true;
+        group.childs[4].do_capture = true;
+        expect(group.generateRegex()).to.eql('.+(c)(.+)(.+).+');
+      });
     });
   });
 
