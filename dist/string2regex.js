@@ -1,4 +1,4 @@
-/*! string2regex - v0.0.1 - 2014-10-24
+/*! string2regex - v0.0.1 - 2014-10-25
 * Copyright (c) 2014 ; Licensed  */
 
 angular.module('string2regex',['ui.bootstrap','string2regex.template'])
@@ -334,15 +334,15 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
         return groupedPartition;
 
       },
-      generateRegex: function(){
-        // Return a regex string.
-        
-        var res = '';
+      generateTaggedRegex: function(){
+        // Generate HTML of the regular expression.
+        var res = [];
         var i;
         var groupedPartition = this.generateGroupedRegexPartitions();
         if(groupedPartition.length === 0){
           return res;
         }
+
 
         // Generate regex according to groupedPartition. 
         // If one of the multiplier is omore, then merge them all. (in a group)
@@ -351,48 +351,89 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
         for(i=0;i<groupedPartition.length;i++){
           var cgroupedPartition = groupedPartition[i];
 
-          if( cgroupedPartition.do_capture ){
-            res += '(';
-          }
+          var partition = [];
+          partition.do_capture = cgroupedPartition.do_capture;
 
           if(_.some(cgroupedPartition.list,function(part){
             return part.group.multiplier == 'omore';
           })){
-            res+=cgroupedPartition.regex+'+';
+            partition.push({
+              expression: cgroupedPartition.regex,
+              multiplier: '+'
+            });
           }else if(_.some(cgroupedPartition.list,function(part){
             return part.group.multiplier == 'zmore';
           })){
-            res+=cgroupedPartition.regex+'.';
+            partition.push({
+              expression: cgroupedPartition.regex,
+              multiplier: '.'
+            });
           }else{
             //merge them one by one.
             _.each(cgroupedPartition.list,function(part){
               if(part.group.multiplier == 'constant'){
                 if(part.group.multiplier_constant == 1){
-                  res+=cgroupedPartition.regex;
+                  partition.push({
+                    expression: cgroupedPartition.regex,
+                    multiplier: ''
+                  });
                 }else{
-                  res+=cgroupedPartition.regex+'{'+part.group.multiplier_constant+'}';
+                  partition.push({
+                    expression: cgroupedPartition.regex,
+                    multiplier: '{'+part.group.multiplier_constant+'}'
+                  });
                 }
               }else if(part.group.multiplier == 'optional'){
-                res+=cgroupedPartition.regex+'?';
+                partition.push({
+                  expression: cgroupedPartition.regex,
+                  multiplier: '?'
+                });
               }else if(part.group.multiplier == 'range'){
-                res+=cgroupedPartition.regex+'{'+part.group.multiplier_min+','+part.group.multiplier_max+'}';
+                partition.push({
+                  expression: cgroupedPartition.regex,
+                  multiplier: '{'+part.group.multiplier_min+','+part.group.multiplier_max+'}'
+                });
               }
             });
           }
 
-          if( cgroupedPartition.do_capture ){
-            res += ')';
-          }
+          res.push(partition);
+
         }
 
-        if(holder.startAnchor){
-          res = '^'+res;
-        }
-        if(holder.endAnchor){
-          res = res+'$';
-        }
+        res.startAnchor = holder.startAnchor;
+        res.endAnchor = holder.endAnchor;
 
         return res;
+      },
+      convertTaggedRegexToString: function(arr){
+        var res = '';
+        if(arr.startAnchor){
+          res += '^';
+        }
+        if(arr.do_capture){
+          res += '(';
+        }
+        var self = this;
+        _.each(arr,function(item){
+          if(_.isArray(item)){
+            res += self.convertTaggedRegexToString(item);
+          }else{
+            res += item.expression+item.multiplier;
+          }
+        });
+        if(arr.do_capture){
+          res += ')';
+        }
+        if(arr.endAnchor){
+          res += '$';
+        }
+        return res;
+      },
+      generateRegex: function(){
+        // Return a regex string.
+        var tagged = this.generateTaggedRegex();
+        return this.convertTaggedRegexToString(tagged);
       }, 
       preserveSettingFromOldGroup: function(group){
         // attempt to regain setting from old group.
@@ -443,6 +484,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
   }
 
   function regenerateResult(){
+    $scope.holder.taggedregex = $scope.rootGroup.generateTaggedRegex();
     $scope.holder.regex = $scope.rootGroup.generateRegex();
   }
 
@@ -678,6 +720,38 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
     templateUrl: 'string2regex-group.tpl.html'
   };
 }])
+.directive('string2regexPrettyregex',['RecursionHelper',function(RecursionHelper){
+  return {
+    scope:{
+      tagged_regex: '=string2regexPrettyregex'
+    },
+    templateUrl: 'string2regex-prettyregex.tpl.html',
+    controller: function($scope){
+      $scope._ = _;
+    },
+    compile: function(element) {
+      // Use the compile function from the RecursionHelper,
+      // And return the linking function(s) which it returns
+      return RecursionHelper.compile(element);
+    },
+  };
+}])
+.directive('string2regexPrettyregexGroup',['RecursionHelper',function(RecursionHelper){
+  return {
+    scope:{
+      tagged_regex: '=string2regexPrettyregexGroup'
+    },
+    templateUrl: 'string2regex-prettyregex-group.tpl.html',
+    controller: function($scope){
+      $scope._ = _;
+    },
+    compile: function(element) {
+      // Use the compile function from the RecursionHelper,
+      // And return the linking function(s) which it returns
+      return RecursionHelper.compile(element);
+    },
+  };
+}])
 //Copied from StackOverflow
 .factory('RecursionHelper', ['$compile', function($compile){
     return {
@@ -776,7 +850,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 });
 
 
-angular.module('string2regex.template', ['string2regex-group.tpl.html', 'string2regex-groupeditor.tpl.html', 'string2regex.tpl.html']);
+angular.module('string2regex.template', ['string2regex-group.tpl.html', 'string2regex-groupeditor.tpl.html', 'string2regex-prettyregex-group.tpl.html', 'string2regex-prettyregex.tpl.html', 'string2regex.tpl.html']);
 
 angular.module("string2regex-group.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("string2regex-group.tpl.html",
@@ -871,6 +945,31 @@ angular.module("string2regex-groupeditor.tpl.html", []).run(["$templateCache", f
     "      <button ng-class=\"'btn btn-primary'\">Save</button>\n" +
     "    </div>\n" +
     "      </form>\n" +
+    "");
+}]);
+
+angular.module("string2regex-prettyregex-group.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("string2regex-prettyregex-group.tpl.html",
+    "<span ng-class=\"{ 'capture-group':tagged_regex.do_capture }\">\n" +
+    "  <span ng-if=\"tagged_regex.do_capture\" class=\"capture-parenthesis capture-start\">(</span>\n" +
+    "  <span ng-repeat=\"part in tagged_regex\">\n" +
+    "    <span ng-if=\"_.isArray(part)\">\n" +
+    "      <span string2regex-prettyregex-group=\"part\"></span>\n" +
+    "    </span>\n" +
+    "    <span ng-if=\"!_.isArray(part)\"><span class=\"expression\">{{ part.expression }}</span><span class=\"multiplier\">{{ part.multiplier }}</span></span>\n" +
+    "  </span>\n" +
+    "  <span ng-if=\"tagged_regex.do_capture\" class=\"capture-parenthesis capture-end\">)</span>\n" +
+    "</span>\n" +
+    "");
+}]);
+
+angular.module("string2regex-prettyregex.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("string2regex-prettyregex.tpl.html",
+    "<span class=\"string2regex-prettyregex\">\n" +
+    "  <span ng-if=\"tagged_regex.startAnchor\" class=\"start-anchor\">^</span>\n" +
+    "  <span string2regex-prettyregex-group=\"tagged_regex\"></span>\n" +
+    "  <span ng-if=\"tagged_regex.endAnchor\" class=\"end-anchor\">$</span>\n" +
+    "</span>\n" +
     "");
 }]);
 

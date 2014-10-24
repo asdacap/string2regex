@@ -12,6 +12,12 @@
   <script src="dist/string2regex.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="dist/string2regex.css" />
+  <style>
+    .string2regex-prettyregex .capture-parenthesis{
+      color: red;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body ng-app="string2regexdemo" ng-controller="MainController as main">
   
@@ -44,6 +50,8 @@
     <div string2regex="main.holder"></div>
     <label>Resulting regex:</label>
     <pre>{{ main.holder.regex }}</pre>
+    <label>Pretty resulting regex:</label>
+    <div string2regex-prettyregex="main.holder.taggedregex"></div>
 
     <label>Holder JSON:</label>
     <textarea class="form-control" ng-model="main.result_json" rows="15">
