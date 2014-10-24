@@ -80,7 +80,7 @@ module.exports = function(grunt) {
       },
       lib_test: {
         files: '<%= jshint.lib_test.src %>',
-        tasks: ['jshint:lib_test','concat','less','uglify','mocha']
+        tasks: ['jshint:lib_test','concat','less','uglify','mocha:test']
       },
       less: {
         files: 'src/*.less',
@@ -89,6 +89,12 @@ module.exports = function(grunt) {
     },
     mocha: {
       test: {
+        src: ['tests/index.html'],
+        options: {
+          run: true
+        }
+      },
+      all: {
         src: ['tests/**/*.html'],
         options: {
           run: true
@@ -121,6 +127,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha');
 
   // Default task.
-  grunt.registerTask('default', ['bower','update_json','jshint','concat', 'less', 'uglify', 'mocha']);
+  grunt.registerTask('default', ['bower','update_json','jshint','concat', 'less', 'uglify', 'mocha:all']);
 
 };
