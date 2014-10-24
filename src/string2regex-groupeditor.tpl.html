@@ -50,6 +50,10 @@
             <input type="checkbox" ng-model="group.do_capture"/> Capture Component
           </label>
         </div>
+        <div ng-if="group.do_capture">
+          <label> Capture Name: </label>
+          <input type="text" class="form-control" ng-model="group.capture_name" ng-required="group.do_capture"></input>
+        </div>
 
         <div class="clearfix" />
 

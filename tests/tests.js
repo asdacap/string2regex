@@ -328,7 +328,73 @@ describe("String2RegexCtrl",function(){
         group.childs[4].do_capture = true;
         expect(group.generateRegex()).to.eql('.+(c)(.+)(.+).+');
       });
+      it('should generate regex with capture for child and reduce redudancy properly. test2.',function(){
+        group = scope.generateGroup('abcdefg');
+        group.multiplier = 'omore';
+        group.selectedClass = 'any';
+        group.childs[2].selectedClass = 'any';
+        group.ensureSelection();
+        group.childs[2].do_capture = true;
+        group.childs[3].do_capture = true;
+        group.childs[4].do_capture = true;
+        console.log(group.generateGroupedRegexPartitions());
+        expect(group.generateRegex()).to.eql('.+(.+)(.+)(.+).+');
+      });
     });
+
+    describe("generateRegexPartitions",function(){
+      var group;
+      beforeEach(function(){
+        group = scope.generateGroup('abcde');
+
+        //Make it so that second level child is selected with 'any'
+        group.ensureNoSelection();
+        group.selectedClass = 'any';
+        group.childs[0].selectedClass = 'any';
+        group.ensureSelection();
+      });
+      it('should get all regex from selected partition.',function(){
+        group.childs[2].selectedClass = 'constant';
+        var part = group.generateRegexPartitions();
+        expect(part.length).to.eql(5);
+        expect(part[1].regex).to.eql('.');
+        expect(part[2].regex).to.eql('c');
+      });
+    });
+
+    describe("generateGroupedRegexPartitions",function(){
+      var group;
+      beforeEach(function(){
+        group = scope.generateGroup('abcde');
+
+        //Make it so that second level child is selected with 'any'
+        group.ensureNoSelection();
+        group.selectedClass = 'any';
+        group.childs[0].selectedClass = 'any';
+        group.ensureSelection();
+      });
+      it('should group by selectedClass',function(){
+        var gpart = group.generateGroupedRegexPartitions();
+        expect(gpart.length).to.eql(1);
+        expect(gpart[0].regex).to.eql('.');
+        expect(gpart[0].list.length).to.eql(5);
+      });
+      it('should not group by group with do_capture',function(){
+        group.childs[1].do_capture = true;
+        group.childs[3].do_capture = true;
+        group.ensureSelection();
+        console.log(group.generateRegexPartitions());
+        var gpart = group.generateGroupedRegexPartitions();
+        console.log(gpart);
+        expect(gpart.length).to.eql(5);
+        expect(gpart[0].regex).to.eql('.');
+        expect(gpart[1].regex).to.eql('.');
+        expect(gpart[2].regex).to.eql('.');
+        expect(gpart[3].regex).to.eql('.');
+        expect(gpart[4].regex).to.eql('.');
+      });
+    });
+    
   });
 
   describe("getColorForDepth",function(){

@@ -136,12 +136,14 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
     'multiplier_max',
     'multiplier_constant',
     'do_capture',
+    'capture_name',
     'selectedClass'
   ]; 
 
   // List of properties that is used in preserveSettingFromOldGroup
   var preservableGroupStateProperties = _.difference(groupStateProperties,[ 
-    'do_capture' // Don't preserve do_capture.
+    'do_capture', // Don't preserve do_capture.
+    'capture_name'
   ]);
 
   $scope.classInfo = String2RegexConfiguration.classInfo;
@@ -209,6 +211,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       multiplier_max: 10,
       multiplier_constant: 1,
       do_capture: false,
+      capture_name: '',
       commonClass: getCommonCharacterClass(string, depth),
       depth: depth,
       selectedClass: '', // Which class should output in regular expression?
@@ -304,18 +307,20 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
         var cur = {
           regex:partitions[0].regex,
           do_capture:partitions[0].group.do_capture,
+          capture_name:partitions[0].group.capture_name,
           list:[partitions[0]]
         };
         var i;
         for(i=1;i<partitions.length;i++){
           var cpart = partitions[i];
-          if(cpart.regex === cur.regex && !cur.do_capture){
+          if(cpart.regex === cur.regex && !(cur.do_capture || cpart.group.do_capture )){
             cur.list.push(cpart);
           }else{
             groupedPartition.push(cur);
             cur = {
               regex:partitions[i].regex,
               do_capture:partitions[i].group.do_capture,
+              capture_name:partitions[i].group.capture_name,
               list:[partitions[i]]
             };
           }
@@ -421,6 +426,15 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 
   function getColorForDepth(depth){
     return groupColors[depth%groupColors.length];
+  }
+
+  // return list of active capture_name
+  function generateCaptureNameMapping(){
+    var groupedPartitions = $scope.rootGroup.generateGroupedRegexPartitions();
+    return _.chain(groupedPartitions)
+      .filter(function(part){ return part.do_capture; })
+      .map(function(part){return part.capture_name; })
+      .value();
   }
 
   function regenerateResult(){
@@ -560,6 +574,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 
   // If the rootGroup change, serialize it to holder's rootGroup
   $scope.$watch('rootGroup',function(){
+    holder.captureNames = generateCaptureNameMapping();
     holder.rootGroup = serializeGroup($scope.rootGroup);
   },true);
 

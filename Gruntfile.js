@@ -87,7 +87,7 @@ module.exports = function(grunt) {
         tasks: ['less']
       },
       html2js: {
-        files: 'src/*.less',
+        files: 'src/*.tpl.html',
         tasks: ['html2js','concat','uglify','mocha:all']
       }
     },
