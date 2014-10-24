@@ -129,13 +129,22 @@ angular.module('string2regex',['ui.bootstrap'])
   var getCharacterClass = _.memoize(String2RegexConfiguration.characterClassFunction);
   var defaultClass = String2RegexConfiguration.defaultClass;
   var generateRegexPortion = String2RegexConfiguration.generateRegexPortion;
-  var groupStateProperties = [ // List of properties that is considered as state 
-    'multiplier',              // These are used in serialization and preserveSettingFromOldGroup
+
+  // List of properties that is considered as state 
+  // These are used in serialization and preserveSettingFromOldGroup
+  var groupStateProperties = [ 
+    'multiplier',              
     'multiplier_min',
     'multiplier_max',
     'multiplier_constant',
+    'do_capture',
     'selectedClass'
   ]; 
+
+  // List of properties that is used in preserveSettingFromOldGroup
+  var preservableGroupStateProperties = _.difference(groupStateProperties,[ 
+    'do_capture' // Don't preserve do_capture.
+  ]);
 
   $scope.classInfo = String2RegexConfiguration.classInfo;
 
@@ -201,15 +210,16 @@ angular.module('string2regex',['ui.bootstrap'])
       multiplier_min: 1,
       multiplier_max: 10,
       multiplier_constant: 1,
+      do_capture: false,
+      commonClass: getCommonCharacterClass(string, depth),
+      depth: depth,
+      selectedClass: '', // Which class should output in regular expression?
       getSize: function(){
         return this.string.length;
       },
       getGroupColor: function(){
         return getColorForDepth(this.depth);
       },
-      commonClass: getCommonCharacterClass(string, depth),
-      depth: depth,
-      selectedClass: '', // Which class should output in regular expression?
       hasSelected: function(){
         if(this.selectedClass !== ''){
           return true;
@@ -295,33 +305,42 @@ angular.module('string2regex',['ui.bootstrap'])
         if(partitions.length === 0){
           return res;
         }
+
         // Group by same regex
+        // Or if no capture.
         var groupedPartition = [];
         var cur = {
           regex:partitions[0].regex,
+          do_capture:partitions[0].group.do_capture,
           list:[partitions[0]]
         };
         var i;
         for(i=1;i<partitions.length;i++){
           var cpart = partitions[i];
-          if(cpart.regex === cur.regex){
+          if(cpart.regex === cur.regex && !cpart.do_capture){
             cur.list.push(cpart);
           }else{
             groupedPartition.push(cur);
             cur = {
               regex:partitions[i].regex,
+              do_capture:partitions[i].group.do_capture,
               list:[partitions[i]]
             };
           }
         }
         groupedPartition.push(cur);
 
-        // Merged the partition. 
-        // If one of the multiplier is omore, then merge them all.
-        // If one of the multiplier is zmore, then merge them all.
+        // Generate regex according to groupedPartition. 
+        // If one of the multiplier is omore, then merge them all. (in a group)
+        // If one of the multiplier is zmore, then merge them all. (in a group)
         // Then just merge them.
         for(i=0;i<groupedPartition.length;i++){
           var cgroupedPartition = groupedPartition[i];
+
+          if( cgroupedPartition.do_capture ){
+            res += '(';
+          }
+
           if(_.some(cgroupedPartition.list,function(part){
             return part.group.multiplier == 'omore';
           })){
@@ -346,6 +365,10 @@ angular.module('string2regex',['ui.bootstrap'])
               }
             });
           }
+
+          if( cgroupedPartition.do_capture ){
+            res += ')';
+          }
         }
 
         if(holder.startAnchor){
@@ -360,7 +383,7 @@ angular.module('string2regex',['ui.bootstrap'])
       preserveSettingFromOldGroup: function(group){
         // attempt to regain setting from old group.
         var self = this;
-        _.each(groupStateProperties,function(val){
+        _.each(preservableGroupStateProperties,function(val){
           self[val] = group[val];
         });
 

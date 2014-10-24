@@ -248,6 +248,12 @@ describe("String2RegexCtrl",function(){
         expect(newgroup.multiplier_max).to.eql(100);
         expect(newgroup.multiplier_constant).to.eql(100);
       });
+      it("should not preserve do_capture",function(){
+        group.do_capture = true;
+        var newgroup = scope.generateGroup(group.string);
+        newgroup.preserveSettingFromOldGroup(group);
+        expect(newgroup.do_capture).to.be.false;
+      });
       it("should preserve child's selectedClass",function(){
         group.childs[0].selectedClass = 'any';
         var newgroup = scope.generateGroup(group.string);
@@ -296,6 +302,20 @@ describe("String2RegexCtrl",function(){
         group.ensureNoSelection();
         group.selectedClass = 'constant';
         expect(group.generateRegex()).to.eql('^Abc!+$');
+      });
+      it('should generate regex with capture',function(){
+        group.selectedClass = 'constant';
+        group.do_capture = true;
+        expect(group.generateRegex()).to.eql('(Abc!+)');
+      });
+      it('should generate regex with capture for child',function(){
+        group.ensureNoSelection();
+        group.multiplier = 'omore';
+        group.selectedClass = 'constant';
+        group.childs[0].select('constant');
+        group.childs[0].do_capture = true;
+        group.ensureSelection();
+        expect(group.generateRegex()).to.eql('(Abc)!+');
       });
     });
   });
