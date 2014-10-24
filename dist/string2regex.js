@@ -1,4 +1,4 @@
-/*! string2regex - v0.0.1 - 2014-10-23
+/*! string2regex - v0.0.1 - 2014-10-24
 * Copyright (c) 2014 ; Licensed  */
 
 angular.module('string2regex',['ui.bootstrap'])
@@ -498,6 +498,7 @@ angular.module('string2regex',['ui.bootstrap'])
     return obj;
   }
 
+  // If sample change, rebuild group and try to preserve state.
   $scope.$watch('holder.sample',function(){
     var oldRoot = $scope.rootGroup;
     $scope.rootGroup = generateGroup(holder.sample);
@@ -505,17 +506,24 @@ angular.module('string2regex',['ui.bootstrap'])
     $scope.rootGroup.ensureSelection();
     regenerateResult();
   });
+
+  // If start or endAnchor change, regenerate result.
   $scope.$watch('holder.startAnchor',function(){
     regenerateResult();
   });
   $scope.$watch('holder.endAnchor',function(){
     regenerateResult();
   });
+
+  // If the serialized rootGroup in the holder change, 
+  // try to apply state to current group.
   $scope.$watch('holder.rootGroup',function(){
     if(holder.rootGroup !== undefined){
       applySerializedGroupData(holder.rootGroup,$scope.rootGroup);
     }
   });
+
+  // If the rootGroup change, serialize it to holder's rootGroup
   $scope.$watch('rootGroup',function(){
     holder.rootGroup = serializeGroup($scope.rootGroup);
   },true);
