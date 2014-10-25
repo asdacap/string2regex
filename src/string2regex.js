@@ -334,7 +334,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       },
       generateTaggedRegex: function(){
         // Generate HTML of the regular expression.
-        var res = [];
+        var res = {items:[]};
         var i;
         var groupedPartition = this.generateGroupedRegexPartitions();
         if(groupedPartition.length === 0){
@@ -349,20 +349,20 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
         for(i=0;i<groupedPartition.length;i++){
           var cgroupedPartition = groupedPartition[i];
 
-          var partition = [];
+          var partition = {items:[]};
           partition.do_capture = cgroupedPartition.do_capture;
 
           if(_.some(cgroupedPartition.list,function(part){
             return part.group.multiplier == 'omore';
           })){
-            partition.push({
+            partition.items.push({
               expression: cgroupedPartition.regex,
               multiplier: '+'
             });
           }else if(_.some(cgroupedPartition.list,function(part){
             return part.group.multiplier == 'zmore';
           })){
-            partition.push({
+            partition.items.push({
               expression: cgroupedPartition.regex,
               multiplier: '.'
             });
@@ -371,23 +371,23 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
             _.each(cgroupedPartition.list,function(part){
               if(part.group.multiplier == 'constant'){
                 if(part.group.multiplier_constant == 1){
-                  partition.push({
+                  partition.items.push({
                     expression: cgroupedPartition.regex,
                     multiplier: ''
                   });
                 }else{
-                  partition.push({
+                  partition.items.push({
                     expression: cgroupedPartition.regex,
                     multiplier: '{'+part.group.multiplier_constant+'}'
                   });
                 }
               }else if(part.group.multiplier == 'optional'){
-                partition.push({
+                partition.items.push({
                   expression: cgroupedPartition.regex,
                   multiplier: '?'
                 });
               }else if(part.group.multiplier == 'range'){
-                partition.push({
+                partition.items.push({
                   expression: cgroupedPartition.regex,
                   multiplier: '{'+part.group.multiplier_min+','+part.group.multiplier_max+'}'
                 });
@@ -395,7 +395,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
             });
           }
 
-          res.push(partition);
+          res.items.push(partition);
 
         }
 
@@ -404,26 +404,26 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 
         return res;
       },
-      convertTaggedRegexToString: function(arr){
+      convertTaggedRegexToString: function(obj){
         var res = '';
-        if(arr.startAnchor){
+        if(obj.startAnchor){
           res += '^';
         }
-        if(arr.do_capture){
+        if(obj.do_capture){
           res += '(';
         }
         var self = this;
-        _.each(arr,function(item){
-          if(_.isArray(item)){
-            res += self.convertTaggedRegexToString(item);
+        _.each(obj.items,function(item){
+          if(item.items !== undefined){
+            res += self.convertTaggedRegexToString(item); // nested 
           }else{
             res += item.expression+item.multiplier;
           }
         });
-        if(arr.do_capture){
+        if(obj.do_capture){
           res += ')';
         }
-        if(arr.endAnchor){
+        if(obj.endAnchor){
           res += '$';
         }
         return res;
