@@ -951,15 +951,13 @@ angular.module("string2regex-groupeditor.tpl.html", []).run(["$templateCache", f
 
 angular.module("string2regex-prettyregex-group.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("string2regex-prettyregex-group.tpl.html",
-    "<span ng-class=\"{ 'capture-group':tagged_regex.do_capture }\"><span ng-if=\"tagged_regex.do_capture\" class=\"capture-parenthesis capture-start\">(</span><span ng-repeat=\"part in tagged_regex.items\"><span ng-if=\"part.items !== undefined\"><span string2regex-prettyregex-group=\"part\"></span></span><span ng-if=\"part.items === undefined\"><span class=\"expression\">{{ part.expression }}</span><span class=\"multiplier\">{{ part.multiplier }}</span></span></span><span ng-if=\"tagged_regex.do_capture\" class=\"capture-parenthesis capture-end\">)</span></span>\n" +
+    "<span ng-class=\"{ 'capture-group':tagged_regex.do_capture, group: true }\"><span ng-if=\"tagged_regex.do_capture\" class=\"capture-parenthesis capture-start\">(</span><span ng-repeat=\"part in tagged_regex.items\"><span ng-if=\"part.items !== undefined\"><span string2regex-prettyregex-group=\"part\"></span></span><span ng-if=\"part.items === undefined\"><span class=\"expression\">{{ part.expression }}</span><span class=\"multiplier\">{{ part.multiplier }}</span></span></span><span ng-if=\"tagged_regex.do_capture\" class=\"capture-parenthesis capture-end\">)</span></span>\n" +
     "");
 }]);
 
 angular.module("string2regex-prettyregex.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("string2regex-prettyregex.tpl.html",
-    "<span class=\"string2regex-prettyregex\">\n" +
-    "  <span ng-if=\"tagged_regex.startAnchor\" class=\"start-anchor\">^</span><span string2regex-prettyregex-group=\"tagged_regex\"></span><span ng-if=\"tagged_regex.endAnchor\" class=\"end-anchor\">$</span>\n" +
-    "</span>\n" +
+    "<span class=\"string2regex-prettyregex\"><span ng-if=\"tagged_regex.startAnchor\" class=\"start-anchor\">^</span><span string2regex-prettyregex-group=\"tagged_regex\"></span><span ng-if=\"tagged_regex.endAnchor\" class=\"end-anchor\">$</span></span>\n" +
     "");
 }]);
 
