@@ -275,6 +275,26 @@ describe("String2RegexCtrl",function(){
         group.selectedClass = 'any';
         expect(group.generateRegex()).to.eql('.+');
       });
+      describe('multiplier',function(){
+        it("append '+' for omore multiplier",function(){
+          group.ensureNoSelection();
+          group.selectedClass = 'any';
+          group.multiplier = 'omore';
+          expect(group.generateRegex()).to.eql('.+');
+        });
+        it("append '*' for zmore multiplier",function(){
+          group.ensureNoSelection();
+          group.selectedClass = 'any';
+          group.multiplier = 'zmore';
+          expect(group.generateRegex()).to.eql('.*');
+        });
+        it("append '?' for optional multiplier",function(){
+          group.ensureNoSelection();
+          group.selectedClass = 'any';
+          group.multiplier = 'optional';
+          expect(group.generateRegex()).to.eql('.?');
+        });
+      });
       it("should generate regex properly",function(){
         group.ensureNoSelection();
         group.childs[0].selectedClass = 'constant';

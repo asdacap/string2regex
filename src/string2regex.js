@@ -364,7 +364,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
           })){
             partition.items.push({
               expression: cgroupedPartition.regex,
-              multiplier: '.'
+              multiplier: '*'
             });
           }else{
             //merge them one by one.
