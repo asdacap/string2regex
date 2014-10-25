@@ -616,6 +616,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
   $scope.$watch('holder.rootGroup',function(){
     if(holder.rootGroup !== undefined){
       applySerializedGroupData(holder.rootGroup,$scope.rootGroup);
+      regenerateResult();
     }
   });
 
