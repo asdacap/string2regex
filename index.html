@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>String2RegexDemo</title>
+  <title>String2Regex</title>
   <script src="lib/underscore/underscore.js"></script>
   <script src="lib/angular/angular.js"></script>
   <script src="lib/jquery/jquery.js"></script>
@@ -22,7 +22,7 @@
 <body ng-app="string2regexdemo" ng-controller="MainController as main">
   
   <div class="container">
-    <h1>String2Regex Demo</h1>
+    <h1>String2Regex</h1>
     
     <div class="row">
       <div class="col-md-10">
@@ -46,17 +46,8 @@
     </div>
 
     <div string2regex="main.holder"></div>
-    <label>Secondary String2Regex test</label>
-    <div string2regex="main.holder"></div>
     <label>Resulting regex:</label>
     <pre>{{ main.holder.regex }}</pre>
-    <label>Pretty resulting regex:</label>
-    <div string2regex-prettyregex="main.holder.taggedregex"></div>
-
-    <label>Holder JSON:</label>
-    <textarea class="form-control" ng-model="main.result_json" rows="15">
-    </textarea>
-    <div class="btn btn-default" ng-click="main.set_json()">Set JSON</div>
 
   </div>
 
