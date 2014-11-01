@@ -1,5 +1,5 @@
-/*! string2regex - v0.0.1 - 2014-10-25
-* Copyright (c) 2014 ; Licensed  */
+/*! string2regex - v0.0.1 - 2014-11-01
+* Copyright (c) 2014 ; Licensed MIT */
 
 angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 .value('String2RegexConfiguration',{
