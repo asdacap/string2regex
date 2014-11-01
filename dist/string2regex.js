@@ -681,7 +681,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
   $scope.classInfo = String2RegexConfiguration.classInfo;
 }])
 
-.directive('string2regex',function(){
+.directive('string2regex',[function(){
   return {
     scope: {
       holder: '=string2regex'
@@ -691,14 +691,14 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
     },
     templateUrl: 'string2regex.tpl.html'
   };
-})
+}])
 .directive('string2regexGroup',['RecursionHelper','$modal',function(RecursionHelper, $modal){
 
   return {
     scope: {
       group: '=string2regexGroup'
     },
-    controller: function($scope,String2RegexConfiguration){
+    controller: ['$scope','String2RegexConfiguration',function($scope,String2RegexConfiguration){
       $scope.classInfo = String2RegexConfiguration.classInfo;
       $scope.openEditor = function( group ){
         $modal.open({
@@ -710,7 +710,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
           }
         });
       };
-    },
+    }],
     link: function(scope, element, attrs, controllers){
     },
     compile: function(element) {
@@ -727,9 +727,9 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       tagged_regex: '=string2regexPrettyregex'
     },
     templateUrl: 'string2regex-prettyregex.tpl.html',
-    controller: function($scope){
+    controller: ['$scope',function($scope){
       $scope._ = _;
-    },
+    }],
     compile: function(element) {
       // Use the compile function from the RecursionHelper,
       // And return the linking function(s) which it returns
@@ -743,9 +743,9 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       tagged_regex: '=string2regexPrettyregexGroup'
     },
     templateUrl: 'string2regex-prettyregex-group.tpl.html',
-    controller: function($scope){
+    controller: ['$scope',function($scope){
       $scope._ = _;
-    },
+    }],
     compile: function(element) {
       // Use the compile function from the RecursionHelper,
       // And return the linking function(s) which it returns
@@ -795,7 +795,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
         }
     };
 }])
-.directive('ngMin', function() { // Fix angular's broken ng-min
+.directive('ngMin', [function() { // Fix angular's broken ng-min
   return {
     restrict: 'A',
     require: 'ngModel',
@@ -821,8 +821,8 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       ctrl.$formatters.push(minValidator);
     }
   };
-})
-.directive('ngMax', function() { // Fix Angular's broken max
+}])
+.directive('ngMax', [function() { // Fix Angular's broken max
   return {
     restrict: 'A',
     require: 'ngModel',
@@ -848,7 +848,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       ctrl.$formatters.push(maxValidator);
     }
   };
-});
+}]);
 
 
 angular.module('string2regex.template', ['string2regex-group.tpl.html', 'string2regex-groupeditor.tpl.html', 'string2regex-prettyregex-group.tpl.html', 'string2regex-prettyregex.tpl.html', 'string2regex.tpl.html']);
