@@ -1,8 +1,9 @@
-/*! string2regex - v0.0.1 - 2014-11-01
+/*! string2regex - v0.0.1 - 2014-11-02
 * Copyright (c) 2014 ; Licensed MIT */
 
 angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 .value('String2RegexConfiguration',{
+  doCaptureNames: false,
   groupColors:[
     "#F5A9A9",
     "#F3E2A9",
@@ -622,7 +623,9 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
 
   // If the rootGroup change, serialize it to holder's rootGroup
   $scope.$watch('rootGroup',function(){
-    holder.captureNames = generateCaptureNameMapping();
+    if(String2RegexConfiguration.doCaptureNames){
+      holder.captureNames = generateCaptureNameMapping();
+    }
     holder.rootGroup = serializeGroup($scope.rootGroup);
   },true);
 
@@ -679,6 +682,7 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
   $scope.group = fakegroup;
   $scope.origroup = group;
   $scope.classInfo = String2RegexConfiguration.classInfo;
+  $scope.doCaptureNames = String2RegexConfiguration.doCaptureNames;
 }])
 
 .directive('string2regex',[function(){
@@ -933,7 +937,7 @@ angular.module("string2regex-groupeditor.tpl.html", []).run(["$templateCache", f
     "            <input type=\"checkbox\" ng-model=\"group.do_capture\"/> Capture Component\n" +
     "          </label>\n" +
     "        </div>\n" +
-    "        <div ng-if=\"group.do_capture\">\n" +
+    "        <div ng-if=\"group.do_capture && doCaptureNames\">\n" +
     "          <label> Capture Name: </label>\n" +
     "          <input type=\"text\" class=\"form-control\" ng-model=\"group.capture_name\" ng-required=\"group.do_capture\"></input>\n" +
     "        </div>\n" +
