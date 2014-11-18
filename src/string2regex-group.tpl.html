@@ -2,7 +2,7 @@
       <tbody>
         <tr ng-if="group.childs.length == 0">
           <td colspan="{{ group.string.length }}">
-            <div class="char-block"><span>{{ group.string }}</span></div>
+            <div class="char-block"><span ng-if='group.string == "\n"'>\n</span><span>{{ group.string }}</span></div>
           </td>
         </tr>
         <tr ng-if="group.childs.length>=1">

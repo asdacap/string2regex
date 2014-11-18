@@ -1,4 +1,4 @@
-/*! string2regex - v0.0.1 - 2014-11-02
+/*! string2regex - v0.0.1 - 2014-11-18
 * Copyright (c) 2014 ; Licensed MIT */
 
 angular.module('string2regex',['ui.bootstrap','string2regex.template'])
@@ -60,6 +60,11 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       button_text: 'Con',
       button_tooltip: 'Constant'
     },
+    linebreak: {
+      display_button: true,
+      button_text: 'LB',
+      button_tooltip: 'Line break'
+    },
     any: {
       display_button: true,
       button_text: 'Any',
@@ -83,10 +88,13 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
     if(_.contains(result,'alphabet') || _.contains(result,'number')){
       result.push('alphanumerical');
     }
-    if(char === ' '){
+    if(char === ' ' || char == "\n"){
       result.push('space');
     }else{
       result.push('nonspace');
+    }
+    if(char == "\n"){
+      result.push('linebreak');
     }
     if(!_.contains(result,'alphanumerical') && !_.contains(result,'space')){
       result.push('symbol');
@@ -105,12 +113,13 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       space: '\\s',
       nonspace: '\\S',
       symbol: '[^a-zA-Z0-9]',
+      linebreak: '\\n',
       any: '.'
     };
     if(mapping[charClass] !== undefined){
       return mapping[charClass];
     }else if( charClass === 'constant' ){
-      return (group.string+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1"); // quite it from being a regular expression.
+      return (group.string+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1").replace("\n","\\n"); // quite it from being a regular expression.
     }else if( charClass === 'any' ){
       return '.';
     }
@@ -863,7 +872,7 @@ angular.module("string2regex-group.tpl.html", []).run(["$templateCache", functio
     "      <tbody>\n" +
     "        <tr ng-if=\"group.childs.length == 0\">\n" +
     "          <td colspan=\"{{ group.string.length }}\">\n" +
-    "            <div class=\"char-block\"><span>{{ group.string }}</span></div>\n" +
+    "            <div class=\"char-block\"><span ng-if='group.string == \"\\n\"'>\\n</span><span>{{ group.string }}</span></div>\n" +
     "          </td>\n" +
     "        </tr>\n" +
     "        <tr ng-if=\"group.childs.length>=1\">\n" +

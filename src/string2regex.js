@@ -58,6 +58,11 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       button_text: 'Con',
       button_tooltip: 'Constant'
     },
+    linebreak: {
+      display_button: true,
+      button_text: 'LB',
+      button_tooltip: 'Line break'
+    },
     any: {
       display_button: true,
       button_text: 'Any',
@@ -81,10 +86,13 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
     if(_.contains(result,'alphabet') || _.contains(result,'number')){
       result.push('alphanumerical');
     }
-    if(char === ' '){
+    if(char === ' ' || char == "\n"){
       result.push('space');
     }else{
       result.push('nonspace');
+    }
+    if(char == "\n"){
+      result.push('linebreak');
     }
     if(!_.contains(result,'alphanumerical') && !_.contains(result,'space')){
       result.push('symbol');
@@ -103,12 +111,13 @@ angular.module('string2regex',['ui.bootstrap','string2regex.template'])
       space: '\\s',
       nonspace: '\\S',
       symbol: '[^a-zA-Z0-9]',
+      linebreak: '\\n',
       any: '.'
     };
     if(mapping[charClass] !== undefined){
       return mapping[charClass];
     }else if( charClass === 'constant' ){
-      return (group.string+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1"); // quite it from being a regular expression.
+      return (group.string+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1").replace("\n","\\n"); // quite it from being a regular expression.
     }else if( charClass === 'any' ){
       return '.';
     }
